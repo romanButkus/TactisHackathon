@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 from dotenv import load_dotenv1
 
@@ -9,16 +10,16 @@ def get_region(region_name: str, country_code: str = "fi", width: int = 800, hei
 	url=f"https://api.maptiler.com/geocoding/{region_name}.json"
 	params = {
 		"key": API_KEY,
-		"countrycode": country_code,
+		"country": country_code,
 		"types": "region"
 	}
 
 	response = requests.get(url, params=params)
 	response.raise_for_status()
-	data = response.json()
+	feature = response.json()["features"][0]
 
 	return {
-		"name" : feature["region_name"],
+		"name" : feature["place_name"],
 		"id" : feature["id"],
 		"center" :{
 			"lng": feature["center"][0],
@@ -51,7 +52,7 @@ def save_region_image(region_name: dict, style: str = "topo-v2", width: int = 80
 
 def save_to_json(data, filename = "regions.json"):
 	with open(filename, 'w') as f:
-		json.dump(region_data, f, indent=4)
+		json.dump(data, f, indent=4)
 	print(f"Saved region data to {filename}")
 
 region = get_region("North Karelia")
