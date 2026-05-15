@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="KinderHUB API")
+app = FastAPI(title="Hackathon API", version="1.0.0")
 
-# Setup CORS so your React frontend can talk to this API
+# Setup CORS so your React frontend can talk to this API for later
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],  # Your Vite dev server
