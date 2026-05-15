@@ -11,7 +11,8 @@ Create and activate a virtual environment to isolate dependencies:
 ```bash
 python3 -m venv venv
 source venv/bin/activate  # Linux/macOS
-# .\venv\Scripts\activate # Windows
+# .\venv\bin\activate # Windows 1st option
+# .\venv\scripts\activate # Windows 2nd option
 
 ```
 
