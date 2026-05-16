@@ -1,0 +1,16 @@
+{
+	"markers": [
+		{
+			"lat": 60.192059,
+			"lng": 24.945831,
+			"photo": "/assets/images/north_karelia_topo.png",
+			"last_updated": "2026-05-16T15:41:14.448178"
+		},
+		{
+			"lat": 60.1925,
+			"lng": 24.946,
+			"photo": "/assets/images/kasivarsi_topo.png",
+			"last_updated": "2026-05-16T15:41:34.465154"
+		}
+	]
+}
