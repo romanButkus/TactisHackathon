@@ -80,12 +80,14 @@ def generate_tactical_simulation(map_path, grid_size=5, total_targets=12):
     random.shuffle(sectors)
 
     for i in range(total_targets):
+        if i >= len(sectors):
+            break
         r, c = sectors[i]
 
         x1, y1 = c * sector_w, r * sector_h
 
-        rx = random.randint(x1 + 20, x1 + sector_w - 20)
-        ry = random.randint(y1 + 20, y1 + sector_h - 20)
+        rx = random.randint(x1 + 40, x1 + sector_w - 40)
+        ry = random.randint(y1 + 40, y1 + sector_h - 40)
 
         radius = random.randint(20, 35)
 
@@ -110,15 +112,16 @@ def generate_tactical_simulation(map_path, grid_size=5, total_targets=12):
 
 
 # =========================
-# DETECTION
+# DETECTION & ANCHOR MAPPING
 # =========================
 
 
-def detect_objects(img, sector_id, origin, size, obj_start_id=0):
+def detect_objects(img, sector_id, origin, size, global_map_dim, obj_start_id=0):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     ox, oy = origin
     sw, sh = size
+    gw, gh = global_map_dim
 
     detections = []
     obj_id = obj_start_id
@@ -147,15 +150,50 @@ def detect_objects(img, sector_id, origin, size, obj_start_id=0):
 
             x, y, w, h = cv2.boundingRect(cnt)
 
+            # Calculate precise global array positions
+            global_x = ox + cx
+            global_y = oy + cy
+
+            # --- CONFIDENCE CALCULATION ENGINE ---
+            # Isolate pixels belonging specifically to this object contour
+            cnt_mask = np.zeros(mask.shape, dtype=np.uint8)
+            cv2.drawContours(cnt_mask, [cnt], -1, 255, -1)
+
+            # Extract mean BGR array value of matching pixels
+            mean_bgr = cv2.mean(img, mask=cnt_mask)[:3]
+
+            # Compute distance vector to expected color configuration
+            target_bgr = profile["color"]
+            color_distance = np.sqrt(
+                (mean_bgr[0] - target_bgr[0]) ** 2
+                + (mean_bgr[1] - target_bgr[1]) ** 2
+                + (mean_bgr[2] - target_bgr[2]) ** 2
+            )
+
+            # Normalize to an analytical score scale (Max distance in 8-bit space is ~441.67)
+            confidence_val = max(0.0, 100.0 - (color_distance / 4.4167))
+            confidence_score = f"{round(confidence_val, 2)}%"
+
             obj_id += 1
 
             detections.append(
                 {
                     "id": obj_id,
                     "type": profile["type"],
+                    "confidence": confidence_score,
                     "sector": sector_id,
-                    "sector_center": [cx, cy],
-                    "global_center": [ox + cx, oy + cy],
+                    "coordinates": {
+                        "sector_pixel": [cx, cy],
+                        "sector_percentage": {
+                            "x": round((cx / sw) * 100, 2),
+                            "y": round((cy / sh) * 100, 2),
+                        },
+                        "global_pixel": [global_x, global_y],
+                        "global_percentage": {
+                            "x": round((global_x / gw) * 100, 2),
+                            "y": round((global_y / gh) * 100, 2),
+                        },
+                    },
                     "bbox": [x, y, w, h],
                 }
             )
@@ -168,7 +206,7 @@ def detect_objects(img, sector_id, origin, size, obj_start_id=0):
 # =========================
 
 
-def scan_sectors(grid_size):
+def scan_sectors(grid_size, global_map_dim):
     results = []
 
     os.makedirs("assets/result/detections", exist_ok=True)
@@ -193,6 +231,7 @@ def scan_sectors(grid_size):
                 sector_id,
                 origin=(c * w, r * h),
                 size=(w, h),
+                global_map_dim=global_map_dim,
                 obj_start_id=global_obj_id,
             )
 
@@ -201,7 +240,18 @@ def scan_sectors(grid_size):
 
                 x, y, w_box, h_box = d["bbox"]
 
-                crop = img[y : y + h_box, x : x + w_box]
+                # --- NEW PADDING LOGIC ---
+                # Add 20 pixels of breathing room around the bounding box
+                pad = 20
+
+                # Protect boundaries so we don't slice negative numbers or go out of bounds
+                y1 = max(0, y - pad)
+                y2 = min(h, y + h_box + pad)
+                x1 = max(0, x - pad)
+                x2 = min(w, x + w_box + pad)
+
+                # Crop using the new safe, padded coordinates
+                crop = img[y1:y2, x1:x2]
 
                 filename = (
                     f"assets/result/detections/sector_{sector_id}_obj_{d['id']}.png"
@@ -236,13 +286,19 @@ def main():
     if not os.path.exists(map_path):
         raise FileNotFoundError(f"Missing map: {map_path}")
 
+    # Read dimensions beforehand to pass vector limits downward
+    master_init = cv2.imread(map_path)
+    if master_init is None:
+        raise FileNotFoundError("Could not read base map asset matrix")
+    gh, gw = master_init.shape[:2]
+
     print("🧠 Generating simulation...")
     grid_size = 5
 
     generate_tactical_simulation(map_path, grid_size=grid_size, total_targets=12)
 
     print("🔍 Scanning sectors...")
-    detections = scan_sectors(grid_size)
+    detections = scan_sectors(grid_size, global_map_dim=(gw, gh))
 
     export_json(detections)
 
