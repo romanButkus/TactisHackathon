@@ -1,38 +1,62 @@
 [
     {
-        "region": "Pohjois-Karjala, Suomi / Finland",
-        "weather_data": {
-            "latitude": 62.6006,
-            "longitude": 29.762,
-            "time": 1778930440,
-            "t2m": 13.27,
-            "wind_speed": 3.6,
-            "wind_deg": 160,
-            "visibility": 3900
-        }
+        "name": "Pohjois-Karjala, Suomi / Finland",
+        "id": "region.1030",
+        "center": {
+            "lng": 29.76197563111782,
+            "lat": 62.60063751586102
+        },
+        "bbox": {
+            "min_lng": 28.25030207633972,
+            "min_lat": 61.722066944707436,
+            "max_lng": 31.586706899106503,
+            "max_lat": 63.88242514525346
+        },
+        "elevation": {
+            "min_elevation": 4.63700008392334,
+            "max_elevation": 347.8406066894531,
+            "avg_elevation": 142.75797270735106
+        },
+        "image": "north_karelia_topo.png"
     },
     {
-        "region": "Varsinais-Suomi, Suomi / Finland",
-        "weather_data": {
-            "latitude": 60.4516,
-            "longitude": 22.267,
-            "time": 1778930440,
-            "t2m": 18.44,
-            "wind_speed": 4.63,
-            "wind_deg": 220,
-            "visibility": 10000
-        }
+        "name": "Varsinais-Suomi, Suomi / Finland",
+        "id": "region.149",
+        "center": {
+            "lng": 22.26699884980917,
+            "lat": 60.45159327027643
+        },
+        "bbox": {
+            "min_lng": 20.377536490559578,
+            "min_lat": 59.47265403300482,
+            "max_lng": 23.92054818570614,
+            "max_lat": 61.13348087934845
+        },
+        "elevation": {
+            "min_elevation": 0.6410884261131287,
+            "max_elevation": 142.26795959472656,
+            "avg_elevation": 54.746288318583304
+        },
+        "image": "varsinais-suomi_topo.png"
     },
     {
-        "region": "Käsivarsi, Lapland",
-        "weather_data": {
-            "latitude": 68.8,
-            "longitude": 22.5,
-            "time": 1778930440,
-            "t2m": 11.95,
-            "wind_speed": 3.28,
-            "wind_deg": 262,
-            "visibility": 10000
-        }
+        "name": "K\u00e4sivarsi, Lapland",
+        "id": "custom_kasivarsi",
+        "center": {
+            "lng": 22.5,
+            "lat": 68.8
+        },
+        "bbox": {
+            "min_lng": 20.5,
+            "min_lat": 67.8,
+            "max_lng": 24.5,
+            "max_lat": 69.8
+        },
+        "elevation": {
+            "min_elevation": 133.7305145263672,
+            "max_elevation": 1199.7779541015625,
+            "avg_elevation": 489.4255754923083
+        },
+        "image": "kasivarsi_topo.png"
     }
 ]

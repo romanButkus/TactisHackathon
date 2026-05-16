@@ -1,0 +1,38 @@
+[
+    {
+        "region": "Pohjois-Karjala, Suomi / Finland",
+        "weather_data": {
+            "latitude": 62.6,
+            "longitude": 29.7639,
+            "time": 1778931496,
+            "t2m": 14.27,
+            "wind_speed": 4.63,
+            "wind_deg": 160,
+            "visibility": 10000
+        }
+    },
+    {
+        "region": "Varsinais-Suomi, Suomi / Finland",
+        "weather_data": {
+            "latitude": 60.452,
+            "longitude": 22.267,
+            "time": 1778931435,
+            "t2m": 18.95,
+            "wind_speed": 5.14,
+            "wind_deg": 230,
+            "visibility": 10000
+        }
+    },
+    {
+        "region": "Käsivarsi, Lapland",
+        "weather_data": {
+            "latitude": 68.8,
+            "longitude": 22.5,
+            "time": 1778931839,
+            "t2m": 12.13,
+            "wind_speed": 2.81,
+            "wind_deg": 283,
+            "visibility": 10000
+        }
+    }
+]
