@@ -78,4 +78,7 @@ ultralytics==8.4.51
 ultralytics-thop==2.0.19
 urllib3==2.7.0
 uvicorn==0.47.0
-websockets==16.0
+requests
+python-dotenv
+Pillow
+pandas

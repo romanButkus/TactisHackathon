@@ -17,8 +17,8 @@ app.add_middleware(
 		allow_headers=["*"],
 )
 
-os.makedirs("static", exist_ok=True)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+os.makedirs("assets", exist_ok=True)
+app.mount("/static", StaticFiles(directory="assets"), name="static")
 
 # === Loading data from JSON ===
 def load_regions_json() -> list:
@@ -42,17 +42,26 @@ def get_regions():
 	for i, r in enumerate(raw):
 		name = r.get("name", "Unknown")
 		name_key = name.lower().replace(" ", "_")
+		
+		# Extract the actual filename from regions.json
+		img_path = r.get("image", {}).get("filename", "")
+		img_filename = img_path.replace("\\", "/").split("/")[-1]
+
 		result.append({
-			"id" : name_key,
+			"id" : r.get("id", name_key),
 			"name": name.split(",")[0],
 			"color" : colors[i % len(colors)],
-			"image_url": f"/static/images/{name_key}_topo.png",
+			"image_url": f"/static/images/{img_filename}",
 			"bbox": [
 				[r["bbox"]["min_lat"], r["bbox"]["min_lng"]],
 				[r["bbox"]["max_lat"], r["bbox"]["max_lng"]]
 			],
 			"center" : [r["center"]["lat"], r["center"]["lng"]],
-			"elevation": r.get("elevation", {"min" : 0, "max" : 0, "avg" : 0})
+			"elevation": {
+				"min": round(r.get("elevation", {}).get("min_elevation", 0)),
+				"max": round(r.get("elevation", {}).get("max_elevation", 0)),
+				"avg": round(r.get("elevation", {}).get("avg_elevation", 0))
+			}
 		})
 	return JSONResponse(content=result)
 
