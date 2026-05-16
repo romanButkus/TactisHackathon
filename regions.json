@@ -17,7 +17,11 @@
             "max_elevation": 347.8406066894531,
             "avg_elevation": 142.75797270735106
         },
-        "image": "north_karelia_topo.png"
+        "image": {
+            "filename": "assets/images/north_karelia_topo.png",
+            "width": 512,
+            "height": 512
+        }
     },
     {
         "name": "Varsinais-Suomi, Suomi / Finland",
@@ -37,7 +41,11 @@
             "max_elevation": 142.26795959472656,
             "avg_elevation": 54.746288318583304
         },
-        "image": "varsinais-suomi_topo.png"
+        "image": {
+            "filename": "assets/images/varsinais-suomi_topo.png",
+            "width": 512,
+            "height": 512
+        }
     },
     {
         "name": "K\u00e4sivarsi, Lapland",
@@ -57,6 +65,10 @@
             "max_elevation": 1199.7779541015625,
             "avg_elevation": 489.4255754923083
         },
-        "image": "kasivarsi_topo.png"
+        "image": {
+            "filename": "assets/images/kasivarsi_topo.png",
+            "width": 512,
+            "height": 768
+        }
     }
 ]

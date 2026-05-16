@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>TACTIS — Tactical Intelligence System</title>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="style.css" />
+		<script src="index.js"></script>
+	</head>
+	<body>
+		<!-- TOP BAR -->
+		<header class="topbar">
+			<div class="logo">TACT<span>IS</span></div>
+			<div class="sep"></div>
+			<div class="pulse" id="sync-pulse"></div>
+			<div class="status-txt" id="sync-status">SYNCING...</div>
+			<div class="sep"></div>
+			<div class="status-txt" id="region-label">NO REGION SELECTED</div>
+			<div class="topbar-right">
+				<div class="conn-badge" id="backend-badge">BACKEND: CONNECTING</div>
+				<div class="threat-badge">THREAT: ELEVATED</div>
+				<div class="clock" id="clock">00:00:00</div>
+			</div>
+		</header>
+
+		<!-- MAIN LAYOUT -->
+		<div class="main">
+			<!-- LEFT PANEL -->
+			<aside class="left-panel">
+				<div class="panel-sec">
+					<div class="sec-title">AO Regions</div>
+					<div id="region-list"></div>
+				</div>
+
+				<div class="panel-sec">
+					<div class="sec-title">Map Layers</div>
+					<div class="toggle-row">
+						<div class="toggle-label">Satellite image</div>
+						<label class="toggle">
+							<input
+								type="checkbox"
+								id="layer-satellite"
+								checked
+								onchange="toggleLayer('satellite', this.checked)"
+							/>
+							<span class="slider"></span>
+						</label>
+					</div>
+					<div class="toggle-row">
+						<div class="toggle-label">Drone overlays</div>
+						<label class="toggle">
+							<input
+								type="checkbox"
+								id="layer-drones"
+								checked
+								onchange="toggleLayer('drones', this.checked)"
+							/>
+							<span class="slider"></span>
+						</label>
+					</div>
+					<div class="toggle-row">
+						<div class="toggle-label">Enemy objects</div>
+						<label class="toggle">
+							<input
+								type="checkbox"
+								id="layer-enemies"
+								checked
+								onchange="toggleLayer('enemies', this.checked)"
+							/>
+							<span class="slider"></span>
+						</label>
+					</div>
+					<div class="toggle-row">
+						<div class="toggle-label">Points of interest</div>
+						<label class="toggle">
+							<input
+								type="checkbox"
+								id="layer-pois"
+								checked
+								onchange="toggleLayer('pois', this.checked)"
+							/>
+							<span class="slider"></span>
+						</label>
+					</div>
+				</div>
+
+				<div class="panel-sec" style="flex: 1; overflow-y: auto">
+					<div class="sec-title">Detected Objects</div>
+					<div id="object-list">
+						<div class="empty-msg">Select a region</div>
+					</div>
+				</div>
+			</aside>
+
+			<!-- MAP -->
+			<div class="map-wrap">
+				<div id="map"></div>
+				<div class="map-hud">
+					LAT <span id="h-lat">—</span><br />
+					LNG <span id="h-lng">—</span><br />
+					ZOOM <span id="h-zoom">—</span>
+				</div>
+				<div class="map-hud2" id="map-hud2">
+					SELECT A REGION FROM THE LEFT PANEL
+				</div>
+				<div class="map-hud3" id="map-hud3">LAST SYNC: —</div>
+				<div class="map-loading" id="map-loading" style="display: none">
+					<div class="loading-txt">
+						LOADING SATELLITE DATA<span class="dots">...</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- RIGHT PANEL -->
+			<aside class="right-panel">
+				<div class="tabs">
+					<div class="tab on" onclick="switchTab('weather', this)">WEATHER</div>
+					<div class="tab" onclick="switchTab('intel', this)">INTEL</div>
+					<div class="tab" onclick="switchTab('analysis', this)">ANALYSIS</div>
+				</div>
+				<div class="tab-body">
+					<!-- WEATHER — logic handled by team -->
+					<div class="pane on" id="pane-weather">
+						<div class="dcard">
+							<div class="dcard-title">Current Conditions</div>
+							<div class="w-temp" id="w-temp">—°C</div>
+							<div class="w-cond" id="w-cond">AWAITING DATA...</div>
+							<div class="fly-badge" id="fly-badge">DRONE OPS: —</div>
+							<div class="bar-row">
+								<div class="bar-lbl">
+									<span>Wind</span><span id="w-wind-val">—</span>
+								</div>
+								<div class="bar-track">
+									<div
+										class="bar-fill g"
+										id="w-wind-bar"
+										style="width: 0%"
+									></div>
+								</div>
+							</div>
+							<div class="bar-row">
+								<div class="bar-lbl">
+									<span>Visibility</span><span id="w-vis-val">—</span>
+								</div>
+								<div class="bar-track">
+									<div
+										class="bar-fill g"
+										id="w-vis-bar"
+										style="width: 0%"
+									></div>
+								</div>
+							</div>
+							<div class="bar-row">
+								<div class="bar-lbl">
+									<span>Cloud cover</span><span id="w-cloud-val">—</span>
+								</div>
+								<div class="bar-track">
+									<div
+										class="bar-fill g"
+										id="w-cloud-bar"
+										style="width: 0%"
+									></div>
+								</div>
+							</div>
+							<div class="drow" style="margin-top: 4px">
+								<span class="dlabel">Precipitation</span>
+								<span class="dval" id="w-precip">—</span>
+							</div>
+						</div>
+						<div class="dcard">
+							<div class="dcard-title">Terrain</div>
+							<div class="drow">
+								<span class="dlabel">Min elevation</span
+								><span class="dval" id="t-min">—</span>
+							</div>
+							<div class="drow">
+								<span class="dlabel">Max elevation</span
+								><span class="dval" id="t-max">—</span>
+							</div>
+							<div class="drow">
+								<span class="dlabel">Relief</span
+								><span class="dval" id="t-relief">—</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- INTEL -->
+					<div class="pane" id="pane-intel">
+						<div class="empty-msg" style="padding: 20px 0">
+							Select a region to view intel
+						</div>
+					</div>
+
+					<!-- ANALYSIS -->
+					<div class="pane" id="pane-analysis">
+						<div class="empty-msg" style="padding: 20px 0">
+							Select a region to view analysis
+						</div>
+					</div>
+				</div>
+			</aside>
+		</div>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+		<script src="dashboard.js"></script>
+	</body>
+</html>

@@ -43,6 +43,12 @@ def save_nls_topographic_image(
     zoom : int = 6,
     filename : str = "nls_topographic_image.png"
 ):
+    
+    output_dir = os.path.join("assets", "images")
+    os.makedirs(output_dir, exist_ok=True)
+
+    full_filepath = os.path.join(output_dir, filename)
+
     n = 2 ** zoom
     x_min = int((bbox["min_lng"] + 180) / 360 * n)
     x_max = int((bbox["max_lng"] + 180) / 360 * n)
@@ -52,6 +58,10 @@ def save_nls_topographic_image(
     tile_size = 256
     cols = x_max - x_min + 1
     rows = y_max - y_min + 1
+
+    # Calculate picture dimensions
+    img_width = cols * tile_size
+    img_height = rows * tile_size
 
     full_image = Image.new("RGB", (cols * tile_size, rows * tile_size))
 
@@ -70,9 +80,14 @@ def save_nls_topographic_image(
                 full_image.paste(tile, (px, py))
                 print(f"Fetched tile: zoom={zoom}, x={x}, y={y}")
     
-    full_image.save(filename)
-    print(f"Saved full region image to: {filename}")
-    return filename
+    full_image.save(full_filepath)
+    print(f"Saved full region image to: {full_filepath}")
+
+    return {
+        "filename": full_filepath,
+        "width": img_width,
+        "height": img_height
+    }
 
 def save_to_json(data, filename="regions.json"):
     with open(filename, "w") as f:
