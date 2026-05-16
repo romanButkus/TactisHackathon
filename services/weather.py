@@ -114,11 +114,15 @@ async def get_all_regions_weather():
 
 
 
-#if __name__ == "__main__":
+
+
+
 tulos = asyncio.run(get_all_regions_weather())
-print(json.dumps(tulos, indent=2))
+
 
 def save_to_json(data, filename="regions.json"):
-    with open(filename, "w") as f:
-        json.dump(data, f, indent=4)
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+save_to_json(tulos)
     
