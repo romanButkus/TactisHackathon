@@ -11,6 +11,7 @@
     pkgs.xorg.libxcb      # Adds libxcb.so.1
     pkgs.xorg.libX11      # Common follow-up requirement
     pkgs.stdenv.cc.cc.lib
+    pkgs.git
   ];
 
   env.LD_LIBRARY_PATH = "${lib.makeLibraryPath (with pkgs; [
