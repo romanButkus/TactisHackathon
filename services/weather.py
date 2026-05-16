@@ -1,66 +1,124 @@
 import httpx
 import xml.etree.ElementTree as ET
+import json
+import os
+import asyncio
+from dotenv import load_dotenv
+import httpx
 
-async def get_weather_data(region: str = "Helsinki", bbox: dict = None):
-    url = "https://opendata.fmi.fi/wfs"
+load_dotenv()
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
+
+def get_coords_from_regions(region_name: str):
+    
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(base_dir, "..", "regions.json")
+    
+    if os.path.exists(json_path):
+        with open(json_path, "r", encoding="utf-8") as f:
+            regions = json.load(f)
+        for r in regions:
+            #Check if the searched region is found in the "name" field of the json file
+            if region_name.lower() in r["name"].lower():
+                lat = r["center"]["lat"]
+                lng = r["center"]["lng"]
+                return lat, lng
+
+        
+    return None, None
+#Change get_weather_data to accept lat and lng parameters
+
+async def get_weather_data(region: str = "Helsinki", lat: float = None, lng: float = None):
+    url = "https://api.openweathermap.org/data/2.5/weather"
     
     params = {
-        "service": "WFS",
-        "version": "2.0.0",
-        "request": "getFeature",
-        "storedquery_id": "fmi::observations::weather::simple",
-        "parameters": "windspeedms,winddir, nn_fmi, t2m,vis,"
+        "appid": OPENWEATHER_API_KEY,
+        "units": "metric"
     }
-
-    # Use dynamic bbox if provided (e.g., from MapTiler service)
-    if bbox:
-        # FMI WFS 2.0.0 EPSG:4326 usually expects coordinates as min_lat,min_lon,max_lat,max_lon
-        params["bbox"] = f"{bbox['min_lat']},{bbox['min_lng']},{bbox['max_lat']},{bbox['max_lng']}"
+    #If lat and lng are not provided as parameters, try to find them from regions.json
+    
+    if lat is None or lng is None:
+        r_lat, r_lng = get_coords_from_regions(region)
+        if r_lat is not None and r_lng is not None:
+            lat, lng = r_lat, r_lng
+    # Use give lat and lng if provided
+    if lat is not None and lng is not None:
+        params["lat"] = lat
+        params["lon"] = lng
     else:
-        # If it's not a known region, treat it as a city/place name
-        params["place"] = region
+        #If no coordinates were provided and couldnt be found from the file, use city name to fetch data
+        params["q"] = region
 
     async with httpx.AsyncClient() as client:
         response = await client.get(url, params=params)
 
     if response.status_code != 200:
-        return {"error": f"Failed to fetch data: {response.status_code}"}
+        return {"error": f"Failed to fetch data from OpenWeather: {response.status_code}"}
 
-    # ... (Rest of your XML parsing code stays exactly the same) ...
-    root = ET.fromstring(response.content)
-    namespaces = {
-        'wfs': 'http://www.opengis.net/wfs/2.0',
-        'gml': 'http://www.opengis.net/gml/3.2',
-        'BsWfs': 'http://xml.fmi.fi/schema/wfs/2.0'
+    data = response.json()
+    # Final cordinates are extracted from the OpenWeather response, 
+    final_lat = data.get("coord", {}).get("lat", 0.0)
+    final_lon = data.get("coord", {}).get("lon", 0.0)
+    time_unix = data.get("dt", 0)
+
+    observation = {
+        "latitude": final_lat,
+        "longitude": final_lon,
+        "time": time_unix
     }
 
-    observations = []
-    for member in root.findall('.//wfs:member', namespaces):
-        element = member.find('.//BsWfs:BsWfsElement', namespaces)
-        if element is not None:
-            pos = element.find('.//gml:pos', namespaces).text.split()
-            lat, lon = float(pos[0]), float(pos[1])
-            param_name = element.find('BsWfs:ParameterName', namespaces).text
-            raw_value = element.find('BsWfs:ParameterValue', namespaces).text
-            time = element.find('BsWfs:Time', namespaces).text
+    if "main" in data and "temp" in data["main"]:
+        observation["t2m"] = data["main"]["temp"]
+    if "wind" in data and "speed" in data["wind"]:
+        observation["wind_speed"] = data["wind"]["speed"]
+    if "wind" in data and "deg" in data["wind"]:
+        observation["wind_deg"] = data["wind"]["deg"]
+        #visibility in m
+    if "visibility" in data:
+        observation["visibility"] = data["visibility"]
+    if "rain" in data and "1h" in data["rain"]:
+        observation["rain"] = data["rain"]["1h"]
+    if "snow" in data and "1h" in data["snow"]:
+        observation["snow"] = data["snow"]["1h"]
 
-            try:
-                value = float(raw_value)
-            except (ValueError, TypeError):
-                value = raw_value
+    return observation
 
-            observations.append({
-                "latitude": lat,
-                "longitude": lon,
-                "parameter": param_name,
-                "value": value,
-                "time": time
+async def get_all_regions_weather():
+    
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        json_path = os.path.join(base_dir, "..", "regions.json")
+        
+        if not os.path.exists(json_path):
+            return []
+            
+        with open(json_path, "r", encoding="utf-8") as f:
+            regions = json.load(f)
+            
+        tasks = []
+        for r in regions:
+            name = r["name"]
+            lat = r["center"]["lat"]
+            lng = r["center"]["lng"]
+            #Search for all regions simultaneously
+            tasks.append(get_weather_data(region=name, lat=lat, lng=lng))
+            
+        weather_results = await asyncio.gather(*tasks)
+        
+        combined = []
+        for r, w in zip(regions, weather_results):
+            combined.append({
+                "region": r["name"],
+                "weather_data": w
             })
+        return combined
 
-    return observations
 
-#
+
 #if __name__ == "__main__":
-#    import asyncio
-#    result = asyncio.run(get_weather_data(region="Helsinki"))
-#    print(result)
+tulos = asyncio.run(get_all_regions_weather())
+print(json.dumps(tulos, indent=2))
+
+def save_to_json(data, filename="regions.json"):
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=4)
+    

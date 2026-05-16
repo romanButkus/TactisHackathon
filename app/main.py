@@ -21,18 +21,15 @@ async def root():
 @app.get("/weather")
 async def show_weather(
     region: str = "Helsinki",
-    min_lat: float = Query(None),
-    min_lng: float = Query(None),
-    max_lat: float = Query(None),
-    max_lng: float = Query(None)
+    lat: float = None,
+    lng: float = None
 ):
-    bbox_dict = None
-    if min_lat and min_lng and max_lat and max_lng:
-        bbox_dict = {
-            "min_lat": min_lat,
-            "min_lng": min_lng,
-            "max_lat": max_lat,
-            "max_lng": max_lng
-        }   
-    weather_data = await get_weather_data(region, bbox_dict)
-    return {"region": region, "weather_data": weather_data} 
+    weather_data = await get_weather_data(region, lat, lng)
+    return {"region": region, "weather_data": weather_data}
+
+@app.get("/weather/all")
+async def show_all_weather():
+    # Tuodaan funktio tässä, jotta se toimii riippumatta muista importeista
+    from services.weather import get_all_regions_weather
+    weather_data = await get_all_regions_weather()
+    return {"data": weather_data}
