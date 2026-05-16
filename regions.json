@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Pohjois-Karjala, Suomi / Finland",
+        "id": "region.1030",
+        "center": {
+            "lng": 29.76197563111782,
+            "lat": 62.60063751586102
+        },
+        "bbox": {
+            "min_lng": 28.25030207633972,
+            "min_lat": 61.722066944707436,
+            "max_lng": 31.586706899106503,
+            "max_lat": 63.88242514525346
+        },
+        "image": "north_karelia_topo.png"
+    },
+    {
+        "name": "Varsinais-Suomi, Suomi / Finland",
+        "id": "region.149",
+        "center": {
+            "lng": 22.26699884980917,
+            "lat": 60.45159327027643
+        },
+        "bbox": {
+            "min_lng": 20.377536490559578,
+            "min_lat": 59.47265403300482,
+            "max_lng": 23.92054818570614,
+            "max_lat": 61.13348087934845
+        },
+        "image": "varsinais-suomi_topo.png"
+    }
+]
