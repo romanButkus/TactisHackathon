@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from services.attitude_service import get_elevations
 from services.celltower_service import fetch_cell_tower_data
 from services.weather import get_all_regions_weather, get_weather_data
+from utils.drone_simulation.run_simulator import run_theater_simulation
 
 app = FastAPI(title="Hackathon Backend", version="1.0.0")
 
@@ -51,14 +52,23 @@ def get_regions():
 
         # Extract the actual filename from regions.json
         img_path = r.get("image", {}).get("filename", "")
-        img_filename = img_path.replace("\\", "/").split("/")[-1]
+        img_filename = img_path.replace("\\", "/").split("/")[-1] if img_path else ""
+
+        # Extract the terrain path and filename safely
+        terrain_path = r.get("terrain_image", "")
+        terrain_filename = (
+            terrain_path.replace("\\", "/").split("/")[-1] if terrain_path else ""
+        )
 
         result.append(
             {
                 "id": r.get("id", name_key),
                 "name": name.split(",")[0],
                 "color": colors[i % len(colors)],
-                "image_url": f"/static/images/{img_filename}",
+                "image_url": f"/static/images/{img_filename}" if img_filename else None,
+                "terrain_url": f"/static/terrains/{terrain_filename}"
+                if terrain_filename
+                else None,
                 "bbox": [
                     [r["bbox"]["min_lat"], r["bbox"]["min_lng"]],
                     [r["bbox"]["max_lat"], r["bbox"]["max_lng"]],
@@ -71,29 +81,9 @@ def get_regions():
                 },
             }
         )
+
     return JSONResponse(content=result)
 
-		terrain_path = r.get("terrain_image", "")
-		terrain_filename = terrain_path.replace("\\", "/").split("/")[-1] if terrain_path else ""
-
-		result.append({
-			"id" : r.get("id", name_key),
-			"name": name.split(",")[0],
-			"color" : colors[i % len(colors)],
-			"image_url": f"/static/images/{img_filename}",
-			"terrain_url": f"/static/terrains/{terrain_filename}" if terrain_filename else None,
-			"bbox": [
-				[r["bbox"]["min_lat"], r["bbox"]["min_lng"]],
-				[r["bbox"]["max_lat"], r["bbox"]["max_lng"]]
-			],
-			"center" : [r["center"]["lat"], r["center"]["lng"]],
-			"elevation": {
-				"min": round(r.get("elevation", {}).get("min_elevation", 0)),
-				"max": round(r.get("elevation", {}).get("max_elevation", 0)),
-				"avg": round(r.get("elevation", {}).get("avg_elevation", 0))
-			}
-		})
-	return JSONResponse(content=result)
 
 # === Weather ===
 @app.get("/api/weather/all")
@@ -141,7 +131,8 @@ def get_elevation_all():
 # === Drones ===
 @app.get("/api/drones")
 def get_drones(region: str = Query(...)):
-	return JSONResponse(drone_store.get(region, []))
+    return JSONResponse(drone_store.get(region, []))
+
 
 @app.post("/api/drones")
 def add_drone(data: dict):
@@ -158,7 +149,8 @@ def add_drone(data: dict):
 # === Objects ===
 @app.get("/api/objects")
 def get_objects(region: str = Query(...)):
-	return JSONResponse(object_store.get(region, []))
+    return JSONResponse(object_store.get(region, []))
+
 
 @app.post("/api/objects")
 def add_object(data: dict):
@@ -267,4 +259,25 @@ def get_cell_towers(region: str = "Varsinais-Suomi"):
         "tower_count": len(towers_list),
         "status": "SUCCESS",
         "data": towers_list,  # This now perfectly passes your multi-item array list!
+    }
+
+
+@app.get("/api/simulation/process")
+def get_theater_simulation_data():
+    """
+    Triggers tactical terrain scanning calculations instantly and streams
+    the full multi-tick target analytics history backend vector matrix.
+    """
+    target_map_source = "assets/test_map.png"
+
+    # Executes the instant-run refactored engine function
+    simulation_data = run_theater_simulation(map_image_path=target_map_source)
+
+    if "error" in simulation_data:
+        raise HTTPException(status_code=404, detail=simulation_data["error"])
+
+    return {
+        "status": "PROCESSING_COMPLETE",
+        "engine_context": "INSTANT_HISTORICAL_GENERATION",
+        "payload": simulation_data,
     }

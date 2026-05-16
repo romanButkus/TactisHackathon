@@ -3,343 +3,363 @@
   "objects": [
     {
       "id": 1,
-      "type": "TROOP_FORMATION",
+      "type": "COMMS_CENTER",
       "sector": 1,
       "local_pixel_center": [
-        278,
-        347
+        122,
+        247
       ],
       "local_bbox": [
-        247,
-        316,
-        63,
-        63
+        93,
+        218,
+        59,
+        59
       ],
       "crop_pixel": [
-        51,
-        51
+        49,
+        49
       ],
       "image": "assets/result/detections_t4/sector_1_obj_1.png"
     },
     {
       "id": 2,
-      "type": "COMMS_CENTER",
-      "sector": 2,
-      "local_pixel_center": [
-        74,
-        278
-      ],
-      "local_bbox": [
-        46,
-        250,
-        57,
-        57
-      ],
-      "crop_pixel": [
-        48,
-        48
-      ],
-      "image": "assets/result/detections_t4/sector_2_obj_2.png"
-    },
-    {
-      "id": 3,
       "type": "COMMAND_POST",
-      "sector": 2,
+      "sector": 1,
       "local_pixel_center": [
-        74,
-        278
+        122,
+        247
       ],
       "local_bbox": [
-        46,
-        250,
-        57,
-        57
-      ],
-      "crop_pixel": [
-        48,
-        48
-      ],
-      "image": "assets/result/detections_t4/sector_2_obj_3.png"
-    },
-    {
-      "id": 4,
-      "type": "COMMS_CENTER",
-      "sector": 4,
-      "local_pixel_center": [
-        636,
-        386
-      ],
-      "local_bbox": [
-        603,
-        356,
-        67,
-        62
-      ],
-      "crop_pixel": [
-        53,
-        50
-      ],
-      "image": "assets/result/detections_t4/sector_4_obj_4.png"
-    },
-    {
-      "id": 5,
-      "type": "COMMS_CENTER",
-      "sector": 4,
-      "local_pixel_center": [
-        763,
-        195
-      ],
-      "local_bbox": [
-        744,
-        173,
-        40,
-        45
-      ],
-      "crop_pixel": [
-        39,
-        42
-      ],
-      "image": "assets/result/detections_t4/sector_4_obj_5.png"
-    },
-    {
-      "id": 6,
-      "type": "COMMAND_POST",
-      "sector": 4,
-      "local_pixel_center": [
-        636,
-        386
-      ],
-      "local_bbox": [
-        603,
-        356,
-        67,
-        62
-      ],
-      "crop_pixel": [
-        53,
-        50
-      ],
-      "image": "assets/result/detections_t4/sector_4_obj_6.png"
-    },
-    {
-      "id": 7,
-      "type": "COMMAND_POST",
-      "sector": 4,
-      "local_pixel_center": [
-        763,
-        195
-      ],
-      "local_bbox": [
-        744,
-        173,
-        40,
-        45
-      ],
-      "crop_pixel": [
-        39,
-        42
-      ],
-      "image": "assets/result/detections_t4/sector_4_obj_7.png"
-    },
-    {
-      "id": 8,
-      "type": "COMMS_CENTER",
-      "sector": 5,
-      "local_pixel_center": [
-        618,
-        400
-      ],
-      "local_bbox": [
-        586,
-        384,
-        65,
-        34
-      ],
-      "crop_pixel": [
-        52,
-        36
-      ],
-      "image": "assets/result/detections_t4/sector_5_obj_8.png"
-    },
-    {
-      "id": 9,
-      "type": "COMMAND_POST",
-      "sector": 5,
-      "local_pixel_center": [
-        618,
-        400
-      ],
-      "local_bbox": [
-        586,
-        384,
-        65,
-        34
-      ],
-      "crop_pixel": [
-        52,
-        36
-      ],
-      "image": "assets/result/detections_t4/sector_5_obj_9.png"
-    },
-    {
-      "id": 10,
-      "type": "AMMO_DEPOT",
-      "sector": 6,
-      "local_pixel_center": [
-        348,
-        301
-      ],
-      "local_bbox": [
-        320,
-        263,
+        93,
+        218,
         59,
         59
       ],
       "crop_pixel": [
-        48,
-        58
-      ],
-      "image": "assets/result/detections_t4/sector_6_obj_10.png"
-    },
-    {
-      "id": 11,
-      "type": "AMMO_DEPOT",
-      "sector": 7,
-      "local_pixel_center": [
-        303,
-        148
-      ],
-      "local_bbox": [
-        280,
-        116,
         49,
         49
       ],
-      "crop_pixel": [
-        43,
-        52
-      ],
-      "image": "assets/result/detections_t4/sector_7_obj_11.png"
+      "image": "assets/result/detections_t4/sector_1_obj_2.png"
     },
     {
-      "id": 12,
-      "type": "AMMO_DEPOT",
-      "sector": 9,
+      "id": 3,
+      "type": "COMMS_CENTER",
+      "sector": 3,
       "local_pixel_center": [
-        531,
-        186
+        35,
+        415
       ],
       "local_bbox": [
-        493,
-        134,
-        79,
-        79
+        25,
+        411,
+        23,
+        7
       ],
       "crop_pixel": [
-        58,
-        72
+        30,
+        24
       ],
-      "image": "assets/result/detections_t4/sector_9_obj_12.png"
+      "image": "assets/result/detections_t4/sector_3_obj_3.png"
     },
     {
-      "id": 13,
+      "id": 4,
+      "type": "COMMS_CENTER",
+      "sector": 3,
+      "local_pixel_center": [
+        775,
+        388
+      ],
+      "local_bbox": [
+        742,
+        359,
+        67,
+        59
+      ],
+      "crop_pixel": [
+        53,
+        49
+      ],
+      "image": "assets/result/detections_t4/sector_3_obj_4.png"
+    },
+    {
+      "id": 5,
       "type": "TROOP_FORMATION",
-      "sector": 9,
+      "sector": 3,
       "local_pixel_center": [
-        818,
-        187
+        97,
+        348
       ],
       "local_bbox": [
-        797,
-        166,
-        43,
-        43
+        68,
+        319,
+        59,
+        59
       ],
       "crop_pixel": [
-        41,
-        41
+        49,
+        49
       ],
-      "image": "assets/result/detections_t4/sector_9_obj_13.png"
+      "image": "assets/result/detections_t4/sector_3_obj_5.png"
     },
     {
-      "id": 14,
+      "id": 6,
+      "type": "COMMAND_POST",
+      "sector": 3,
+      "local_pixel_center": [
+        35,
+        415
+      ],
+      "local_bbox": [
+        25,
+        411,
+        23,
+        7
+      ],
+      "crop_pixel": [
+        30,
+        24
+      ],
+      "image": "assets/result/detections_t4/sector_3_obj_6.png"
+    },
+    {
+      "id": 7,
+      "type": "COMMAND_POST",
+      "sector": 3,
+      "local_pixel_center": [
+        775,
+        388
+      ],
+      "local_bbox": [
+        742,
+        359,
+        67,
+        59
+      ],
+      "crop_pixel": [
+        53,
+        49
+      ],
+      "image": "assets/result/detections_t4/sector_3_obj_7.png"
+    },
+    {
+      "id": 8,
+      "type": "COMMS_CENTER",
+      "sector": 4,
+      "local_pixel_center": [
+        61,
+        411
+      ],
+      "local_bbox": [
+        39,
+        401,
+        46,
+        17
+      ],
+      "crop_pixel": [
+        42,
+        30
+      ],
+      "image": "assets/result/detections_t4/sector_4_obj_8.png"
+    },
+    {
+      "id": 9,
+      "type": "COMMAND_POST",
+      "sector": 4,
+      "local_pixel_center": [
+        61,
+        411
+      ],
+      "local_bbox": [
+        39,
+        401,
+        46,
+        17
+      ],
+      "crop_pixel": [
+        42,
+        30
+      ],
+      "image": "assets/result/detections_t4/sector_4_obj_9.png"
+    },
+    {
+      "id": 10,
+      "type": "TROOP_FORMATION",
+      "sector": 8,
+      "local_pixel_center": [
+        309,
+        404
+      ],
+      "local_bbox": [
+        275,
+        380,
+        69,
+        38
+      ],
+      "crop_pixel": [
+        54,
+        44
+      ],
+      "image": "assets/result/detections_t4/sector_8_obj_10.png"
+    },
+    {
+      "id": 11,
       "type": "COMMS_CENTER",
       "sector": 13,
       "local_pixel_center": [
-        324,
-        244
+        435,
+        402
       ],
       "local_bbox": [
-        298,
-        214,
-        54,
-        63
+        411,
+        381,
+        50,
+        37
       ],
       "crop_pixel": [
-        46,
-        50
+        44,
+        41
       ],
-      "image": "assets/result/detections_t4/sector_13_obj_14.png"
+      "image": "assets/result/detections_t4/sector_13_obj_11.png"
     },
     {
-      "id": 15,
+      "id": 12,
+      "type": "TROOP_FORMATION",
+      "sector": 13,
+      "local_pixel_center": [
+        415,
+        220
+      ],
+      "local_bbox": [
+        381,
+        186,
+        69,
+        69
+      ],
+      "crop_pixel": [
+        54,
+        54
+      ],
+      "image": "assets/result/detections_t4/sector_13_obj_12.png"
+    },
+    {
+      "id": 13,
       "type": "COMMAND_POST",
       "sector": 13,
       "local_pixel_center": [
-        324,
-        244
+        435,
+        402
       ],
       "local_bbox": [
-        298,
-        214,
-        54,
-        63
+        411,
+        381,
+        50,
+        37
+      ],
+      "crop_pixel": [
+        44,
+        41
+      ],
+      "image": "assets/result/detections_t4/sector_13_obj_13.png"
+    },
+    {
+      "id": 14,
+      "type": "TROOP_FORMATION",
+      "sector": 17,
+      "local_pixel_center": [
+        530,
+        303
+      ],
+      "local_bbox": [
+        492,
+        265,
+        77,
+        77
+      ],
+      "crop_pixel": [
+        58,
+        58
+      ],
+      "image": "assets/result/detections_t4/sector_17_obj_14.png"
+    },
+    {
+      "id": 15,
+      "type": "AMMO_DEPOT",
+      "sector": 21,
+      "local_pixel_center": [
+        556,
+        124
+      ],
+      "local_bbox": [
+        530,
+        88,
+        55,
+        55
       ],
       "crop_pixel": [
         46,
-        50
+        56
       ],
-      "image": "assets/result/detections_t4/sector_13_obj_15.png"
+      "image": "assets/result/detections_t4/sector_21_obj_15.png"
     },
     {
       "id": 16,
-      "type": "AMMO_DEPOT",
-      "sector": 22,
+      "type": "COMMS_CENTER",
+      "sector": 21,
       "local_pixel_center": [
-        843,
-        331
+        555,
+        222
       ],
       "local_bbox": [
-        822,
-        302,
-        45,
-        45
+        523,
+        184,
+        66,
+        77
       ],
       "crop_pixel": [
-        41,
-        49
+        52,
+        58
       ],
-      "image": "assets/result/detections_t4/sector_22_obj_16.png"
+      "image": "assets/result/detections_t4/sector_21_obj_16.png"
     },
     {
       "id": 17,
       "type": "TROOP_FORMATION",
-      "sector": 23,
+      "sector": 21,
       "local_pixel_center": [
-        872,
-        121
+        249,
+        90
       ],
       "local_bbox": [
-        866,
-        111,
-        11,
-        21
+        213,
+        54,
+        73,
+        73
       ],
       "crop_pixel": [
-        26,
-        30
+        56,
+        56
       ],
-      "image": "assets/result/detections_t4/sector_23_obj_17.png"
+      "image": "assets/result/detections_t4/sector_21_obj_17.png"
+    },
+    {
+      "id": 18,
+      "type": "COMMAND_POST",
+      "sector": 21,
+      "local_pixel_center": [
+        555,
+        222
+      ],
+      "local_bbox": [
+        523,
+        184,
+        66,
+        77
+      ],
+      "crop_pixel": [
+        52,
+        58
+      ],
+      "image": "assets/result/detections_t4/sector_21_obj_18.png"
     }
   ]
 }

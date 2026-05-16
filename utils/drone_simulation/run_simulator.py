@@ -1,7 +1,6 @@
 import json
 import os
 import random
-import time
 
 import cv2
 import numpy as np
@@ -23,37 +22,21 @@ OBJECT_PROFILES = [
 
 
 def draw_tactical_shape(img, obj_type, center, radius, color):
-    """Draws a predefined tactical polygon shape onto a given image canvas.
-
-    Parameters:
-        img (numpy.ndarray): The source BGR image array to draw upon.
-        obj_type (str): The classification type determining the geometry
-                        ('AMMO_DEPOT', 'COMMS_CENTER', 'TROOP_FORMATION', 'COMMAND_POST').
-        center (tuple): A tuple of (x, y) integers marking the shape's midpoint.
-        radius (int): Pixel radius or bounding extent of the polygon asset.
-        color (tuple): BGR color tuple representing the shape profile fill.
-
-    Returns:
-        None
-    """
     cx, cy = center
 
     if obj_type == "AMMO_DEPOT":
         pts = np.array(
             [[cx, cy - radius], [cx - radius, cy + radius], [cx + radius, cy + radius]]
         )
-
     elif obj_type == "COMMS_CENTER":
         cv2.rectangle(
             img, (cx - radius, cy - radius), (cx + radius, cy + radius), color, -1
         )
         return
-
     elif obj_type == "TROOP_FORMATION":
         pts = np.array(
             [[cx, cy - radius], [cx + radius, cy], [cx, cy + radius], [cx - radius, cy]]
         )
-
     elif obj_type == "COMMAND_POST":
         pts = np.array(
             [
@@ -66,7 +49,7 @@ def draw_tactical_shape(img, obj_type, center, radius, color):
             np.int32,
         )
 
-    cv2.fillPoly(img, [pts.astype(np.int32)], color)  # pyright: ignore[reportPossiblyUnboundVariable]
+    cv2.fillPoly(img, [pts.astype(np.int32)], color)
 
 
 # =========================
@@ -75,28 +58,16 @@ def draw_tactical_shape(img, obj_type, center, radius, color):
 
 
 def apply_positional_shift(tracked_targets, h, w):
-    """Applies a random positional translation to existing tracking targets.
-
-    Simulates kinematic drift over time ticks while keeping coordinates bound
-    safely within the global theater boundaries.
-
-    Parameters:
-        tracked_targets (list): Cumulative active target list from memory tracking.
-        h (int): Total pixel height of the global map image environment.
-        w (int): Total pixel width of the global map image environment.
-
-    Returns:
-        None (Modifies target lists in place)
-    """
     for t in tracked_targets:
         dx = random.randint(-25, 25)
         dy = random.randint(-25, 25)
 
-        # Handle formatting keys dynamically if seeded directly from detection output dictionaries
         pixel_key = "global_pixel" if "global_pixel" in t else "global_pixel_center"
 
-        t[pixel_key][0] = np.clip(t[pixel_key][0] + dx, 60, w - 60)
-        t[pixel_key][1] = np.clip(t[pixel_key][1] + dy, 60, h - 60)
+        # If accessing raw fallback tracking coordinates, make sure arrays contain standard ints
+        if type(t[pixel_key]) is list:
+            t[pixel_key][0] = int(np.clip(t[pixel_key][0] + dx, 60, w - 60))
+            t[pixel_key][1] = int(np.clip(t[pixel_key][1] + dy, 60, h - 60))
 
 
 # =========================
@@ -107,18 +78,6 @@ def apply_positional_shift(tracked_targets, h, w):
 def build_and_slice_theater_memory(
     clean_map_img, tracked_targets, grid_size, sector_w, sector_h
 ):
-    """Renders active objects onto a clean map and slices the terrain into an indexed sector grid dictionary.
-
-    Parameters:
-        clean_map_img (numpy.ndarray): Background environment image without shapes.
-        tracked_targets (list): Collection dictionary containing positions of targets to render.
-        grid_size (int): Dimension of the square sector matrix (e.g., 5 for a 5x5 grid).
-        sector_w (int): Sliced block pixel width configuration.
-        sector_h (int): Sliced block pixel height configuration.
-
-    Returns:
-        dict: A lookup table linking sequential 1-based sector IDs to cropped numpy sub-images.
-    """
     canvas = clean_map_img.copy()
 
     for t in tracked_targets:
@@ -134,6 +93,7 @@ def build_and_slice_theater_memory(
             profile["color"],
         )
 
+    os.makedirs("assets/test", exist_ok=True)
     cv2.imwrite("assets/test/master.png", canvas)
 
     sector_crops = {}
@@ -165,23 +125,6 @@ def detect_objects(
     obj_start_id=0,
     existing_detections=None,
 ):
-    """Processes a sector crop image to detect tactical targets, filtering out boundary seams.
-
-    Utilizes absolute proximity checks on a persistent checklist to discard targets
-    already logged by adjacent grid zones.
-
-    Parameters:
-        img (numpy.ndarray): Cropped sector grid image slice.
-        sector_id (int): Numeric identifier of the current sector window.
-        origin (tuple): Global pixel coordinate offset tuple (ox, oy) of this sector's top-left corner.
-        size (tuple): Current dimensions (sw, sh) of this sector segment.
-        global_map_dim (tuple): Absolute global background dimensions (gw, gh).
-        obj_start_id (int, optional): Initial indexing value offset for object unique identification.
-        existing_detections (list, optional): Running list reference storing targets found during this tick.
-
-    Returns:
-        list: Filtered detection dictionaries identifying unique structures in this sector block.
-    """
     if existing_detections is None:
         existing_detections = []
 
@@ -191,7 +134,6 @@ def detect_objects(
 
     detections = []
     obj_id = obj_start_id
-
     DUPLICATE_RADIUS_THRESHOLD = 35
 
     for profile in OBJECT_PROFILES:
@@ -212,7 +154,6 @@ def detect_objects(
 
             local_cx = int(M["m10"] / M["m00"])
             local_cy = int(M["m01"] / M["m00"])
-
             global_cx = ox + local_cx
             global_cy = oy + local_cy
 
@@ -258,27 +199,12 @@ def detect_objects(
 
 
 def scan_sectors_from_memory(sector_crops, grid_size, global_map_dim, time_tick):
-    """Orchestrates multi-sector detection processing over an entire tick grid layout.
-
-    Crops localized object visual assets with custom padding windows and builds
-    unbiased center vectors for each asset output.
-
-    Parameters:
-        sector_crops (dict): Active lookup table linking sector IDs to sub-images.
-        grid_size (int): Dimensions of the grid matrix.
-        global_map_dim (tuple): Absolute global backplate tracking dimensions (gw, gh).
-        time_tick (int): Current sequential scenario timeline execution tick.
-
-    Returns:
-        list: Consolidated array of unique target detections compiled across all grids.
-    """
     master_tick_detections = []
     tick_dir = f"assets/result/detections_t{time_tick}"
     os.makedirs(tick_dir, exist_ok=True)
 
     gw, gh = global_map_dim
     sector_w, sector_h = gw // grid_size, gh // grid_size
-
     global_obj_id = 0
 
     for r in range(grid_size):
@@ -314,9 +240,9 @@ def scan_sectors_from_memory(sector_crops, grid_size, global_map_dim, time_tick)
                 crop = img[y1:y2, x1:x2]
                 filename = f"{tick_dir}/sector_{sector_id}_obj_{d['id']}.png"
                 cv2.imwrite(filename, crop)
-
                 d["image"] = filename
 
+    # Safely clean reference indices before packing structure
     for d in master_tick_detections:
         if "global_pixel_center" in d:
             del d["global_pixel_center"]
@@ -324,22 +250,26 @@ def scan_sectors_from_memory(sector_crops, grid_size, global_map_dim, time_tick)
     return master_tick_detections
 
 
-# =========================
-# MAIN EXECUTIVE PIPELINE
-# =========================
+# ==========================================
+# MASTER SIMULATION EXECUTIVE FUNCTION
+# ==========================================
 
 
-def main():
-    """Main execution script managing database creation, system simulations,
-
-    image inpainting backplate generations, timeline steps, and structured file generation.
+def run_theater_simulation(map_image_path: str = "assets/test_map.png"):
     """
-    map_path = "assets/test_map.png"
-    if not os.path.exists(map_path):
-        raise FileNotFoundError(map_path)
+    Executes the tactical simulation steps sequentially without any physical
+    time delays. Compiles historical coordinates data instantly.
 
-    base_map = cv2.imread(map_path)
-    gh, gw = base_map.shape[:2]  # pyright: ignore[reportOptionalMemberAccess]
+    Returns:
+        dict: The full structured analytics run manifest ready for JSON parsing.
+    """
+    if not os.path.exists(map_image_path):
+        return {
+            "error": f"Target background environment resource '{map_image_path}' not found."
+        }
+
+    base_map = cv2.imread(map_image_path)
+    gh, gw = base_map.shape[:2]
 
     grid_size = 5
     sector_w, sector_h = gw // grid_size, gh // grid_size
@@ -347,11 +277,9 @@ def main():
     os.makedirs("assets/test", exist_ok=True)
     os.makedirs("assets/result", exist_ok=True)
 
-    print("🧹 Generating clean environment backplate...")
-    clean_background_map = base_map.copy()
-
     temp_img = base_map.copy()
     combined_mask = np.zeros(base_map.shape[:2], dtype=np.uint8)
+
     for profile in OBJECT_PROFILES:
         target = np.full_like(temp_img, profile["color"], dtype=np.uint8)
         diff = cv2.absdiff(temp_img, target)
@@ -365,19 +293,14 @@ def main():
     clean_background_map = cv2.inpaint(base_map, combined_mask, 7, cv2.INPAINT_TELEA)
 
     tracked_targets_memory = []
-
     total_duration_sec = 120
     interval_sec = 20
     total_ticks = total_duration_sec // interval_sec
 
-    # Master database tracking manifest dictionary to store timeline ticks
     all_simulation_ticks_history = {}
 
     for tick in range(1, total_ticks + 1):
-        print(f"\n[TICK {tick}]")
-
         if tick == 1:
-            print("Parsing baseline targets directly from the source map file...")
             initial_sector_crops = {}
             s_id = 0
             for r in range(grid_size):
@@ -391,14 +314,8 @@ def main():
                 initial_sector_crops, grid_size, (gw, gh), time_tick=tick
             )
             tracked_targets_memory = detections
-            print(
-                f"🎯 Seeded pipeline tracker with {len(tracked_targets_memory)} initial map items."
-            )
 
             if len(tracked_targets_memory) == 0:
-                print(
-                    "⚠️ No objects found on test_map.png. Generating fallback targets..."
-                )
                 for i in range(12):
                     tracked_targets_memory.append(
                         {
@@ -415,22 +332,17 @@ def main():
             apply_positional_shift(tracked_targets_memory, gh, gw)
 
         sector_crops = build_and_slice_theater_memory(
-            clean_background_map,
-            tracked_targets_memory,
-            grid_size,
-            sector_w,
-            sector_h,
+            clean_background_map, tracked_targets_memory, grid_size, sector_w, sector_h
         )
 
         detections = scan_sectors_from_memory(
             sector_crops, grid_size, (gw, gh), time_tick=tick
         )
 
-        # Write out single individual step file for caching
+        # Caches backup JSON steps locally
         with open(f"assets/result/detections_t{tick}.json", "w") as f:
             json.dump({"tick": tick, "objects": detections}, f, indent=2)
 
-        # Log this step data directly to our unified run history object memory
         all_simulation_ticks_history[f"tick_{tick}"] = {
             "tick": tick,
             "timestamp_sec": tick * interval_sec,
@@ -438,33 +350,18 @@ def main():
             "objects": detections,
         }
 
-        print("Detected unique structures:", len(detections))
+    # Compile the final dictionary manifest layout
+    manifest_payload = {
+        "simulation_summary": {
+            "total_ticks_recorded": total_ticks,
+            "interval_seconds": interval_sec,
+            "map_dimensions": [gw, gh],
+        },
+        "timeline": all_simulation_ticks_history,
+    }
 
-        if tick < total_ticks:
-            time.sleep(interval_sec)
+    # Save tracking file as history record
+    with open("assets/result/all_ticks_manifest.json", "w") as master_f:
+        json.dump(manifest_payload, master_f, indent=2)
 
-    # ==========================================
-    # WRITE UNIFIED MASTER RUN JSON MANIFEST
-    # ==========================================
-    combined_json_path = "assets/result/all_ticks_manifest.json"
-    print(f"\n💾 Compiling history database into a single file...")
-    with open(combined_json_path, "w") as master_f:
-        json.dump(
-            {
-                "simulation_summary": {
-                    "total_ticks_recorded": total_ticks,
-                    "interval_seconds": interval_sec,
-                    "map_dimensions": [gw, gh],
-                },
-                "timeline": all_simulation_ticks_history,
-            },
-            master_f,
-            indent=2,
-        )
-    print(
-        f"✅ Unified manifest successfully compiled and written to: {combined_json_path}"
-    )
-
-
-if __name__ == "__main__":
-    main()
+    return manifest_payload
