@@ -12,6 +12,11 @@
             "max_lng": 31.586706899106503,
             "max_lat": 63.88242514525346
         },
+        "elevation": {
+            "min_elevation": 4.63700008392334,
+            "max_elevation": 347.8406066894531,
+            "avg_elevation": 142.75797270735106
+        },
         "image": "north_karelia_topo.png"
     },
     {
@@ -27,6 +32,31 @@
             "max_lng": 23.92054818570614,
             "max_lat": 61.13348087934845
         },
+        "elevation": {
+            "min_elevation": 0.6410884261131287,
+            "max_elevation": 142.26795959472656,
+            "avg_elevation": 54.746288318583304
+        },
         "image": "varsinais-suomi_topo.png"
+    },
+    {
+        "name": "K\u00e4sivarsi, Lapland",
+        "id": "custom_kasivarsi",
+        "center": {
+            "lng": 22.5,
+            "lat": 68.8
+        },
+        "bbox": {
+            "min_lng": 20.5,
+            "min_lat": 67.8,
+            "max_lng": 24.5,
+            "max_lat": 69.8
+        },
+        "elevation": {
+            "min_elevation": 133.7305145263672,
+            "max_elevation": 1199.7779541015625,
+            "avg_elevation": 489.4255754923083
+        },
+        "image": "kasivarsi_topo.png"
     }
 ]

@@ -3,6 +3,7 @@ import json
 from PIL import Image
 from io import BytesIO
 from dotenv import load_dotenv
+from attitude_service import get_elevations
 import math
 import requests
 
@@ -102,6 +103,7 @@ regions = []
 for name, zoom in region_names:
     print(f"Fetching region: {name}")
     region = get_region(name)
+    region["elevation"] = get_elevations(region["bbox"])
     region["image"] = save_nls_topographic_image(
             bbox=region["bbox"],
             zoom=zoom,
@@ -109,13 +111,14 @@ for name, zoom in region_names:
     )
     regions.append(region)
 
-save_to_json(regions)
-
 # Käsivarsi separately
 kasivarsi = get_kasivarsi()
+kasivarsi["elevation"] = get_elevations(kasivarsi["bbox"])
 kasivarsi["image"] = save_nls_topographic_image(
     bbox=kasivarsi["bbox"],
     zoom=7,
     filename="kasivarsi_topo.png"
 )
 regions.append(kasivarsi)
+
+save_to_json(regions)
