@@ -16,3 +16,23 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return {"status": "online", "version": "1.0.0"}
+
+
+@app.get("/weather")
+async def show_weather(
+    region: str = "Helsinki",
+    min_lat: float = Query(None),
+    min_lng: float = Query(None),
+    max_lat: float = Query(None),
+    max_lng: float = Query(None)
+):
+    bbox_dict = None
+    if min_lat and min_lng and max_lat and max_lng:
+        bbox_dict = {
+            "min_lat": min_lat,
+            "min_lng": min_lng,
+            "max_lat": max_lat,
+            "max_lng": max_lng
+        }   
+    weather_data = await get_weather_data(region, bbox_dict)
+    return {"region": region, "weather_data": weather_data} 

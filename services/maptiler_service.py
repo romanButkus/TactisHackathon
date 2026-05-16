@@ -5,6 +5,7 @@ from io import BytesIO
 from dotenv import load_dotenv
 import math
 import requests
+from dotenv import load_dotenv
 
 load_dotenv()
 MAPTILER_API_KEY = os.getenv("MAPTILER_API_KEY")
@@ -18,9 +19,12 @@ def get_region(region_name: str, country_code: str = "fi"):
         "types": "region"
     }
 
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    feature = response.json()["features"][0]
+	response = requests.get(url, params=params)
+	response.raise_for_status()
+	features = response.json().get("features", [])
+	if not features:
+		raise ValueError(f"No region found for '{region_name}'")
+	feature = features[0]
 
     return {
         "name": feature["place_name"],
@@ -54,68 +58,6 @@ def save_nls_topographic_image(
 
     full_image = Image.new("RGB", (cols * tile_size, rows * tile_size))
 
-    for x in range(x_min, x_max + 1):
-        for y in range(y_min, y_max + 1):
-            url = (
-                f"https://avoin-karttakuva.maanmittauslaitos.fi/avoin/wmts/1.0.0/"
-                f"maastokartta/default/WGS84_Pseudo-Mercator/{zoom}/{y}/{x}.png"
-                f"?api-key={NLS_API_KEY}"
-            )
-            response = requests.get(url)
-            if response.status_code == 200:
-                tile = Image.open(BytesIO(response.content))
-                px = (x - x_min) * tile_size
-                py = (y - y_min) * tile_size
-                full_image.paste(tile, (px, py))
-                print(f"Fetched tile: zoom={zoom}, x={x}, y={y}")
-    
-    full_image.save(filename)
-    print(f"Saved full region image to: {filename}")
-    return filename
-
-def save_to_json(data, filename="regions.json"):
-    with open(filename, "w") as f:
-        json.dump(data, f, indent=4)
-    print(f"Saved: {filename}")
-
-# Fetch al regions
-region_names = [
-    ("North Karelia", 7),
-    ("Varsinais-Suomi", 7),
-]
-
-def get_kasivarsi():
-    return {
-        "name": "Käsivarsi, Lapland",
-        "id": "custom_kasivarsi",
-        "center": {"lng": 22.5, "lat": 68.8},
-        "bbox": {
-            "min_lng": 20.5,
-            "min_lat": 67.8,
-            "max_lng": 24.5,
-            "max_lat": 69.8
-        }
-    }
-
-regions = []
-
-for name, zoom in region_names:
-    print(f"Fetching region: {name}")
-    region = get_region(name)
-    region["image"] = save_nls_topographic_image(
-            bbox=region["bbox"],
-            zoom=zoom,
-            filename=f"{name.replace(' ', '_').lower()}_topo.png"
-    )
-    regions.append(region)
-
-save_to_json(regions)
-
-# Käsivarsi separately
-kasivarsi = get_kasivarsi()
-kasivarsi["image"] = save_nls_topographic_image(
-    bbox=kasivarsi["bbox"],
-    zoom=7,
-    filename="kasivarsi_topo.png"
-)
-regions.append(kasivarsi)
+region = get_region("North Karelia")
+save_region_image(region)
+save_to_json(region)
