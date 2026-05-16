@@ -1,16 +1,92 @@
 {
-	"markers": [
-		{
-			"lat": 60.192059,
-			"lng": 24.945831,
-			"photo": "/assets/images/north_karelia_topo.png",
-			"last_updated": "2026-05-16T15:41:14.448178"
-		},
-		{
-			"lat": 60.1925,
-			"lng": 24.946,
-			"photo": "/assets/images/kasivarsi_topo.png",
-			"last_updated": "2026-05-16T15:41:34.465154"
-		}
-	]
+    "Pohjois-Karjala, Suomi / Finland": {
+        "region_name": "Pohjois-Karjala, Suomi / Finland",
+        "base_map": "assets/images/north_karelia_topo.png",
+        "bbox": {
+            "min_lng": 28.25030207633972,
+            "min_lat": 61.722066944707436,
+            "max_lng": 31.586706899106503,
+            "max_lat": 63.88242514525346
+        },
+        "modules": {
+            "weather": {
+                "severity": "High",
+                "impact_statement": "Light rain creates a high risk of equipment damage and operational failure for most drones, severely limiting flight capabilities."
+            },
+            "objects": {
+                "hazard_level": "Caution",
+                "object_summary": "Two critical infrastructure objects, a power tower and a communication mast, are closely located near the geographical center of the specified region, indicating an area of potential electromagnetic interference and physical obstacles for drone operations."
+            },
+            "elevation": {
+                "terrain_type": "Undulating Hilly Terrain",
+                "elevation_summary": "The terrain exhibits a significant elevation range from near sea level to almost 350 meters, indicating varied topography with considerable local relief and diverse slopes."
+            }
+        },
+        "master_analysis": {
+            "overall_risk_score": 9,
+            "integrated_summary": "Light rain presents a critical risk of equipment failure and severely limited flight capabilities for most drones, a hazard amplified by the complex undulating hilly terrain with significant elevation changes. This environment is further complicated by critical infrastructure near the center, posing electromagnetic interference and collision risks that become exceptionally dangerous under adverse weather conditions.",
+            "flight_recommendation": "No-Fly Order"
+        },
+        "analysis_timestamp": "2026-05-16T20:54:20.920546"
+    },
+    "Varsinais-Suomi, Suomi / Finland": {
+        "region_name": "Varsinais-Suomi, Suomi / Finland",
+        "base_map": "assets/images/varsinais-suomi_topo.png",
+        "bbox": {
+            "min_lng": 20.377536490559578,
+            "min_lat": 59.47265403300482,
+            "max_lng": 23.92054818570614,
+            "max_lat": 61.13348087934845
+        },
+        "modules": {
+            "weather": {
+                "severity": "Medium",
+                "impact_statement": "Light rain will degrade optical sensor effectiveness and potentially compromise electronics, while moderate winds increase power consumption and demand precise flight control."
+            },
+            "objects": {
+                "hazard_level": "Safe",
+                "object_summary": "No detected objects from the provided list are located within the specified Varsinais-Suomi bounding box."
+            },
+            "elevation": {
+                "terrain_type": "Gently Undulating Lowlands",
+                "elevation_summary": "The terrain is predominantly low-lying and gently undulating, with a maximum elevation of approximately 142 meters, suggesting minimal natural topographic barriers across this large area."
+            }
+        },
+        "master_analysis": {
+            "overall_risk_score": 7,
+            "integrated_summary": "The gently undulating lowlands of Varsinais-Suomi present minimal natural topographic barriers and are free of identified static hazards. However, light rain and moderate winds pose significant risks by degrading optical sensor effectiveness, increasing power consumption, demanding precise flight control, and critically, potentially compromising onboard electronics.",
+            "flight_recommendation": "No-Fly Order"
+        },
+        "analysis_timestamp": "2026-05-16T20:55:43.309368"
+    },
+    "K\u00e4sivarsi, Lapland": {
+        "region_name": "K\u00e4sivarsi, Lapland",
+        "base_map": "assets\\images\\kasivarsi_topo.png",
+        "bbox": {
+            "min_lng": 20.5,
+            "min_lat": 67.8,
+            "max_lng": 24.5,
+            "max_lat": 69.8
+        },
+        "modules": {
+            "weather": {
+                "severity": "Medium",
+                "impact_statement": "Light rain poses a moderate risk to drone electronics and sensor performance, while wind is manageable and visibility remains good."
+            },
+            "objects": {
+                "hazard_level": "Safe",
+                "object_summary": "No objects from the provided list were detected within the specified K\u00e4sivarsi, Lapland bounding box."
+            },
+            "elevation": {
+                "terrain_type": "Rugged Peaks",
+                "elevation_summary": "The substantial elevation range from low valleys to high fells imposes significant constraints on movement and line of sight."
+            }
+        },
+        "master_analysis": {
+            "overall_risk_score": 8,
+            "integrated_summary": "The rugged peaks of K\u00e4sivarsi present significant topographic challenges, impacting drone movement and line of sight, which is further complicated by light rain posing a moderate risk to drone electronics and sensor performance. Despite the absence of detected objects, the combined environmental factors necessitate extreme caution.",
+            "flight_recommendation": "No-Fly Order"
+        },
+        "analysis_timestamp": "2026-05-16T20:57:03.602167"
+    }
 }
