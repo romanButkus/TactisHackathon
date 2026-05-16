@@ -40,7 +40,7 @@ def get_region(region_name: str, country_code: str = "fi"):
 
 def save_nls_topographic_image(
     bbox: dict,
-    zoom : int = 6,
+    zoom : int = 9,
     filename : str = "nls_topographic_image.png"
 ):
     
@@ -96,8 +96,8 @@ def save_to_json(data, filename="regions.json"):
 
 # Fetch al regions
 region_names = [
-    ("North Karelia", 7),
-    ("Varsinais-Suomi", 7),
+    ("North Karelia", 9),
+    ("Varsinais-Suomi", 9),
 ]
 
 def get_kasivarsi():

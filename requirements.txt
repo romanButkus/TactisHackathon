@@ -82,3 +82,6 @@ requests
 python-dotenv
 Pillow
 pandas
+
+websockets==16.0
+

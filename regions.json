@@ -18,10 +18,11 @@
             "avg_elevation": 142.75797270735106
         },
         "image": {
-            "filename": "assets\\images\\north_karelia_topo.png",
-            "width": 512,
-            "height": 512
-        }
+            "filename": "assets/images/north_karelia_topo.png",
+            "width": 1280,
+            "height": 2048
+        },
+        "terrain_image": "assets/terrains/pohjois-karjala_terrain.png"
     },
     {
         "name": "Varsinais-Suomi, Suomi / Finland",
@@ -42,10 +43,11 @@
             "avg_elevation": 54.746288318583304
         },
         "image": {
-            "filename": "assets\\images\\varsinais-suomi_topo.png",
-            "width": 512,
-            "height": 512
-        }
+            "filename": "assets/images/varsinais-suomi_topo.png",
+            "width": 1792,
+            "height": 1536
+        },
+        "terrain_image": "assets/terrains/varsinais-suomi_terrain.png"
     },
     {
         "name": "K\u00e4sivarsi, Lapland",
@@ -69,6 +71,7 @@
             "filename": "assets\\images\\kasivarsi_topo.png",
             "width": 512,
             "height": 768
-        }
+        },
+        "terrain_image": "assets/terrains/k\u00e4sivarsi_terrain.png"
     }
 ]
