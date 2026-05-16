@@ -6,360 +6,624 @@
       "type": "COMMS_CENTER",
       "sector": 1,
       "local_pixel_center": [
-        122,
-        247
+        78,
+        365
       ],
       "local_bbox": [
-        93,
-        218,
-        59,
-        59
+        57,
+        341,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        78,
+        365
       ],
       "crop_pixel": [
-        49,
-        49
+        41,
+        44
       ],
       "image": "assets/result/detections_t4/sector_1_obj_1.png"
     },
     {
       "id": 2,
-      "type": "COMMAND_POST",
+      "type": "COMMS_CENTER",
       "sector": 1,
       "local_pixel_center": [
-        122,
-        247
+        59,
+        243
       ],
       "local_bbox": [
-        93,
-        218,
+        38,
+        219,
+        44,
+        51
+      ],
+      "global_pixel_center": [
         59,
-        59
+        243
       ],
       "crop_pixel": [
-        49,
-        49
+        41,
+        44
       ],
       "image": "assets/result/detections_t4/sector_1_obj_2.png"
     },
     {
       "id": 3,
       "type": "COMMS_CENTER",
-      "sector": 3,
+      "sector": 1,
       "local_pixel_center": [
-        35,
-        415
+        270,
+        82
       ],
       "local_bbox": [
-        25,
-        411,
-        23,
-        7
+        248,
+        35,
+        46,
+        97
+      ],
+      "global_pixel_center": [
+        270,
+        82
       ],
       "crop_pixel": [
-        30,
-        24
+        42,
+        67
       ],
-      "image": "assets/result/detections_t4/sector_3_obj_3.png"
+      "image": "assets/result/detections_t4/sector_1_obj_3.png"
     },
     {
       "id": 4,
-      "type": "COMMS_CENTER",
-      "sector": 3,
+      "type": "COMMAND_POST",
+      "sector": 1,
       "local_pixel_center": [
-        775,
-        388
+        78,
+        365
       ],
       "local_bbox": [
-        742,
-        359,
-        67,
-        59
+        57,
+        341,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        78,
+        365
       ],
       "crop_pixel": [
-        53,
-        49
+        41,
+        44
       ],
-      "image": "assets/result/detections_t4/sector_3_obj_4.png"
+      "image": "assets/result/detections_t4/sector_1_obj_4.png"
     },
     {
       "id": 5,
-      "type": "TROOP_FORMATION",
-      "sector": 3,
+      "type": "COMMAND_POST",
+      "sector": 1,
       "local_pixel_center": [
-        97,
-        348
+        59,
+        243
       ],
       "local_bbox": [
-        68,
-        319,
+        38,
+        219,
+        44,
+        51
+      ],
+      "global_pixel_center": [
         59,
-        59
+        243
       ],
       "crop_pixel": [
-        49,
-        49
+        41,
+        44
       ],
-      "image": "assets/result/detections_t4/sector_3_obj_5.png"
+      "image": "assets/result/detections_t4/sector_1_obj_5.png"
     },
     {
       "id": 6,
       "type": "COMMAND_POST",
-      "sector": 3,
+      "sector": 1,
       "local_pixel_center": [
-        35,
-        415
+        270,
+        82
       ],
       "local_bbox": [
-        25,
-        411,
-        23,
-        7
+        248,
+        35,
+        46,
+        97
+      ],
+      "global_pixel_center": [
+        270,
+        82
       ],
       "crop_pixel": [
-        30,
-        24
+        42,
+        67
       ],
-      "image": "assets/result/detections_t4/sector_3_obj_6.png"
+      "image": "assets/result/detections_t4/sector_1_obj_6.png"
     },
     {
       "id": 7,
-      "type": "COMMAND_POST",
-      "sector": 3,
+      "type": "COMMS_CENTER",
+      "sector": 2,
       "local_pixel_center": [
-        775,
-        388
+        109,
+        91
       ],
       "local_bbox": [
-        742,
-        359,
+        88,
         67,
-        59
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        416,
+        91
       ],
       "crop_pixel": [
-        53,
-        49
+        41,
+        44
       ],
-      "image": "assets/result/detections_t4/sector_3_obj_7.png"
+      "image": "assets/result/detections_t4/sector_2_obj_7.png"
     },
     {
       "id": 8,
       "type": "COMMS_CENTER",
-      "sector": 4,
+      "sector": 2,
       "local_pixel_center": [
-        61,
-        411
+        300,
+        59
       ],
       "local_bbox": [
-        39,
-        401,
-        46,
-        17
+        294,
+        40,
+        13,
+        40
+      ],
+      "global_pixel_center": [
+        607,
+        59
       ],
       "crop_pixel": [
-        42,
-        30
+        26,
+        39
       ],
-      "image": "assets/result/detections_t4/sector_4_obj_8.png"
+      "image": "assets/result/detections_t4/sector_2_obj_8.png"
     },
     {
       "id": 9,
-      "type": "COMMAND_POST",
-      "sector": 4,
+      "type": "COMMS_CENTER",
+      "sector": 2,
       "local_pixel_center": [
-        61,
-        411
+        30,
+        59
       ],
       "local_bbox": [
-        39,
-        401,
-        46,
-        17
+        9,
+        35,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        337,
+        59
       ],
       "crop_pixel": [
-        42,
-        30
+        30,
+        44
       ],
-      "image": "assets/result/detections_t4/sector_4_obj_9.png"
+      "image": "assets/result/detections_t4/sector_2_obj_9.png"
     },
     {
       "id": 10,
-      "type": "TROOP_FORMATION",
-      "sector": 8,
+      "type": "COMMAND_POST",
+      "sector": 2,
       "local_pixel_center": [
-        309,
-        404
+        109,
+        91
       ],
       "local_bbox": [
-        275,
-        380,
-        69,
-        38
+        88,
+        67,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        416,
+        91
       ],
       "crop_pixel": [
-        54,
+        41,
         44
       ],
-      "image": "assets/result/detections_t4/sector_8_obj_10.png"
+      "image": "assets/result/detections_t4/sector_2_obj_10.png"
     },
     {
       "id": 11,
-      "type": "COMMS_CENTER",
-      "sector": 13,
+      "type": "COMMAND_POST",
+      "sector": 2,
       "local_pixel_center": [
-        435,
-        402
+        300,
+        59
       ],
       "local_bbox": [
-        411,
-        381,
-        50,
-        37
+        294,
+        40,
+        13,
+        40
+      ],
+      "global_pixel_center": [
+        607,
+        59
       ],
       "crop_pixel": [
-        44,
-        41
+        26,
+        39
       ],
-      "image": "assets/result/detections_t4/sector_13_obj_11.png"
+      "image": "assets/result/detections_t4/sector_2_obj_11.png"
     },
     {
       "id": 12,
-      "type": "TROOP_FORMATION",
-      "sector": 13,
+      "type": "COMMAND_POST",
+      "sector": 2,
       "local_pixel_center": [
-        415,
-        220
+        30,
+        59
       ],
       "local_bbox": [
-        381,
-        186,
-        69,
-        69
+        9,
+        35,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        337,
+        59
       ],
       "crop_pixel": [
-        54,
-        54
+        30,
+        44
       ],
-      "image": "assets/result/detections_t4/sector_13_obj_12.png"
+      "image": "assets/result/detections_t4/sector_2_obj_12.png"
     },
     {
       "id": 13,
-      "type": "COMMAND_POST",
-      "sector": 13,
+      "type": "COMMS_CENTER",
+      "sector": 4,
       "local_pixel_center": [
-        435,
-        402
+        157,
+        123
       ],
       "local_bbox": [
-        411,
-        381,
-        50,
-        37
+        136,
+        99,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        1078,
+        123
       ],
       "crop_pixel": [
-        44,
-        41
+        41,
+        44
       ],
-      "image": "assets/result/detections_t4/sector_13_obj_13.png"
+      "image": "assets/result/detections_t4/sector_4_obj_13.png"
     },
     {
       "id": 14,
-      "type": "TROOP_FORMATION",
-      "sector": 17,
+      "type": "COMMAND_POST",
+      "sector": 4,
       "local_pixel_center": [
-        530,
-        303
+        157,
+        123
       ],
       "local_bbox": [
-        492,
-        265,
-        77,
-        77
+        136,
+        99,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        1078,
+        123
       ],
       "crop_pixel": [
-        58,
-        58
+        41,
+        44
       ],
-      "image": "assets/result/detections_t4/sector_17_obj_14.png"
+      "image": "assets/result/detections_t4/sector_4_obj_14.png"
     },
     {
       "id": 15,
-      "type": "AMMO_DEPOT",
-      "sector": 21,
+      "type": "COMMS_CENTER",
+      "sector": 6,
       "local_pixel_center": [
-        556,
-        124
+        167,
+        402
       ],
       "local_bbox": [
-        530,
-        88,
-        55,
-        55
+        146,
+        378,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        167,
+        862
       ],
       "crop_pixel": [
-        46,
-        56
+        41,
+        44
       ],
-      "image": "assets/result/detections_t4/sector_21_obj_15.png"
+      "image": "assets/result/detections_t4/sector_6_obj_15.png"
     },
     {
       "id": 16,
       "type": "COMMS_CENTER",
-      "sector": 21,
+      "sector": 6,
       "local_pixel_center": [
-        555,
-        222
+        97,
+        286
       ],
       "local_bbox": [
-        523,
-        184,
-        66,
-        77
+        76,
+        262,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        97,
+        746
       ],
       "crop_pixel": [
-        52,
-        58
+        41,
+        44
       ],
-      "image": "assets/result/detections_t4/sector_21_obj_16.png"
+      "image": "assets/result/detections_t4/sector_6_obj_16.png"
     },
     {
       "id": 17,
-      "type": "TROOP_FORMATION",
-      "sector": 21,
+      "type": "COMMAND_POST",
+      "sector": 6,
       "local_pixel_center": [
-        249,
-        90
+        167,
+        402
       ],
       "local_bbox": [
-        213,
-        54,
-        73,
-        73
+        146,
+        378,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        167,
+        862
       ],
       "crop_pixel": [
-        56,
-        56
+        41,
+        44
       ],
-      "image": "assets/result/detections_t4/sector_21_obj_17.png"
+      "image": "assets/result/detections_t4/sector_6_obj_17.png"
     },
     {
       "id": 18,
       "type": "COMMAND_POST",
-      "sector": 21,
+      "sector": 6,
       "local_pixel_center": [
-        555,
-        222
+        97,
+        286
       ],
       "local_bbox": [
-        523,
-        184,
-        66,
-        77
+        76,
+        262,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        97,
+        746
       ],
       "crop_pixel": [
-        52,
-        58
+        41,
+        44
       ],
-      "image": "assets/result/detections_t4/sector_21_obj_18.png"
+      "image": "assets/result/detections_t4/sector_6_obj_18.png"
+    },
+    {
+      "id": 19,
+      "type": "COMMS_CENTER",
+      "sector": 9,
+      "local_pixel_center": [
+        84,
+        380
+      ],
+      "local_bbox": [
+        63,
+        356,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        1005,
+        840
+      ],
+      "crop_pixel": [
+        41,
+        44
+      ],
+      "image": "assets/result/detections_t4/sector_9_obj_19.png"
+    },
+    {
+      "id": 20,
+      "type": "COMMAND_POST",
+      "sector": 9,
+      "local_pixel_center": [
+        84,
+        380
+      ],
+      "local_bbox": [
+        63,
+        356,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        1005,
+        840
+      ],
+      "crop_pixel": [
+        41,
+        44
+      ],
+      "image": "assets/result/detections_t4/sector_9_obj_20.png"
+    },
+    {
+      "id": 21,
+      "type": "COMMS_CENTER",
+      "sector": 11,
+      "local_pixel_center": [
+        190,
+        74
+      ],
+      "local_bbox": [
+        169,
+        50,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        190,
+        994
+      ],
+      "crop_pixel": [
+        41,
+        44
+      ],
+      "image": "assets/result/detections_t4/sector_11_obj_21.png"
+    },
+    {
+      "id": 22,
+      "type": "COMMAND_POST",
+      "sector": 11,
+      "local_pixel_center": [
+        190,
+        74
+      ],
+      "local_bbox": [
+        169,
+        50,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        190,
+        994
+      ],
+      "crop_pixel": [
+        41,
+        44
+      ],
+      "image": "assets/result/detections_t4/sector_11_obj_22.png"
+    },
+    {
+      "id": 23,
+      "type": "COMMS_CENTER",
+      "sector": 14,
+      "local_pixel_center": [
+        53,
+        127
+      ],
+      "local_bbox": [
+        32,
+        103,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        974,
+        1047
+      ],
+      "crop_pixel": [
+        41,
+        44
+      ],
+      "image": "assets/result/detections_t4/sector_14_obj_23.png"
+    },
+    {
+      "id": 24,
+      "type": "COMMAND_POST",
+      "sector": 14,
+      "local_pixel_center": [
+        53,
+        127
+      ],
+      "local_bbox": [
+        32,
+        103,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        974,
+        1047
+      ],
+      "crop_pixel": [
+        41,
+        44
+      ],
+      "image": "assets/result/detections_t4/sector_14_obj_24.png"
+    },
+    {
+      "id": 25,
+      "type": "COMMS_CENTER",
+      "sector": 25,
+      "local_pixel_center": [
+        145,
+        172
+      ],
+      "local_bbox": [
+        124,
+        148,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        1373,
+        2012
+      ],
+      "crop_pixel": [
+        41,
+        44
+      ],
+      "image": "assets/result/detections_t4/sector_25_obj_25.png"
+    },
+    {
+      "id": 26,
+      "type": "COMMAND_POST",
+      "sector": 25,
+      "local_pixel_center": [
+        145,
+        172
+      ],
+      "local_bbox": [
+        124,
+        148,
+        44,
+        51
+      ],
+      "global_pixel_center": [
+        1373,
+        2012
+      ],
+      "crop_pixel": [
+        41,
+        44
+      ],
+      "image": "assets/result/detections_t4/sector_25_obj_26.png"
     }
   ]
 }

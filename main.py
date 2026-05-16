@@ -218,30 +218,28 @@ def get_analysis(region: str = Query(...)):
 
 
 @app.get("/api/towers")
-def get_cell_towers(region: str = "Varsinais-Suomi"):
+def get_cell_towers(region: str = "Pohjois-Karjala"):
     """
-    Accepts target parameters, processes coordinates, and hands back
-    a clean array of cellular metrics powered by Combain API tracking.
+    Accepts a target region, resolves its absolute coordinates boundary matrix,
+    and returns a localized network telemetry array powered by Combain API tracking.
     """
     raw = load_regions_json()
     if isinstance(raw, dict):
         raw = [raw]
 
+    # Dynamically find the requested region matching by name string
     search_region = region.lower()
     region_data = next(
-        (
-            r
-            for r in raw
-            if search_region in r["name"].lower() or "varsinais" in search_region
-        ),
-        None,
+        (r for r in raw if search_region in r.get("name", "").lower()), None
     )
 
     if not region_data:
         raise HTTPException(
-            status_code=404, detail="Selected location bounding boundaries missing."
+            status_code=404,
+            detail=f"Geographical context boundary for region '{region}' missing.",
         )
 
+    # Clean bounding box payload constructor
     bbox_for_api = {
         "min_lng": region_data["bbox"]["min_lng"],
         "min_lat": region_data["bbox"]["min_lat"],
@@ -249,7 +247,7 @@ def get_cell_towers(region: str = "Varsinais-Suomi"):
         "max_lat": region_data["bbox"]["max_lat"],
     }
 
-    # Execute Combain multi-row loop
+    # Execute Combain simulation data loop mapping engine
     towers_list = fetch_cell_tower_data(bbox_dict=bbox_for_api)
 
     return {
@@ -258,26 +256,88 @@ def get_cell_towers(region: str = "Varsinais-Suomi"):
         "search_radius": "10km",
         "tower_count": len(towers_list),
         "status": "SUCCESS",
-        "data": towers_list,  # This now perfectly passes your multi-item array list!
+        "data": towers_list,
     }
 
 
 @app.get("/api/simulation/process")
 def get_theater_simulation_data():
     """
-    Triggers tactical terrain scanning calculations instantly and streams
-    the full multi-tick target analytics history backend vector matrix.
+    Triggers tactical terrain scanning calculations for all available regions,
+    processing each custom map image instantly and returning a unified array structure.
     """
-    target_map_source = "assets/test_map.png"
+    raw = load_regions_json()
+    if isinstance(raw, dict):
+        raw = [raw]
 
-    # Executes the instant-run refactored engine function
-    simulation_data = run_theater_simulation(map_image_path=target_map_source)
+    result = []
+    colors = ["#4ade80", "#34d399", "#86efac"]
 
-    if "error" in simulation_data:
-        raise HTTPException(status_code=404, detail=simulation_data["error"])
+    for i, r in enumerate(raw):
+        name = r.get("name", "Unknown")
+        name_key = name.lower().replace(" ", "_")
+        search_region = name.lower()
 
-    return {
-        "status": "PROCESSING_COMPLETE",
-        "engine_context": "INSTANT_HISTORICAL_GENERATION",
-        "payload": simulation_data,
-    }
+        # 1. Extract the image metadata strings exactly like in /api/regions
+        img_path = r.get("image", {}).get("filename", "")
+        img_filename = img_path.replace("\\", "/").split("/")[-1] if img_path else ""
+
+        terrain_path = r.get("terrain_image", "")
+        terrain_filename = (
+            terrain_path.replace("\\", "/").split("/")[-1] if terrain_path else ""
+        )
+
+        # 2. Locate the image file on disk safely using a robust fallback list
+        possible_paths = [
+            f"assets/terrains/{terrain_filename}",
+            f"assets/terrains/{img_filename}",
+            f"assets/terrains/{name_key}_terrain.png",
+            f"assets/{img_filename}",
+        ]
+
+        local_map_source = None
+        for path in possible_paths:
+            if path and os.path.exists(path):
+                local_map_source = path
+                break
+
+        # If a specific region's image is missing, log a warning and use the fallback mock tracking data
+        if not local_map_source:
+            print(
+                f"⚠️ Warning: Could not locate map asset for {name}. Using generation seed."
+            )
+            simulation_data = run_theater_simulation(
+                map_image_path="assets/fallback_placeholder_faked.png"
+            )
+        else:
+            print(
+                f"🎯 Simulation Engine running on localized asset: {local_map_source}"
+            )
+            simulation_data = run_theater_simulation(map_image_path=local_map_source)
+
+        # 3. Append to the collection layout using the exact schema contract as /api/regions
+        result.append(
+            {
+                "id": r.get("id", name_key),
+                "name": name.split(",")[0],
+                "color": colors[i % len(colors)],
+                "image_url": f"/static/images/{img_filename}" if img_filename else None,
+                "terrain_url": f"/static/terrains/{terrain_filename}"
+                if terrain_filename
+                else None,
+                "bbox": [
+                    [r["bbox"]["min_lat"], r["bbox"]["min_lng"]],
+                    [r["bbox"]["max_lat"], r["bbox"]["max_lng"]],
+                ],
+                "center": [r["center"]["lat"], r["center"]["lng"]],
+                "elevation": {
+                    "min": round(r.get("elevation", {}).get("min_elevation", 0)),
+                    "max": round(r.get("elevation", {}).get("max_elevation", 0)),
+                    "avg": round(r.get("elevation", {}).get("avg_elevation", 0)),
+                },
+                # Enjecting the active simulation metrics directly into the region object block!
+                "simulation": simulation_data,
+            }
+        )
+
+    return JSONResponse(content=result)

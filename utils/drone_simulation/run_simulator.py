@@ -62,10 +62,12 @@ def apply_positional_shift(tracked_targets, h, w):
         dx = random.randint(-25, 25)
         dy = random.randint(-25, 25)
 
-        pixel_key = "global_pixel" if "global_pixel" in t else "global_pixel_center"
+        # Use standard key consistently
+        pixel_key = (
+            "global_pixel_center" if "global_pixel_center" in t else "global_pixel"
+        )
 
-        # If accessing raw fallback tracking coordinates, make sure arrays contain standard ints
-        if type(t[pixel_key]) is list:
+        if isinstance(t[pixel_key], list):
             t[pixel_key][0] = int(np.clip(t[pixel_key][0] + dx, 60, w - 60))
             t[pixel_key][1] = int(np.clip(t[pixel_key][1] + dy, 60, h - 60))
 
@@ -83,7 +85,9 @@ def build_and_slice_theater_memory(
     for t in tracked_targets:
         profile = next(p for p in OBJECT_PROFILES if p["type"] == t["type"])
         radius = t.get("radius", 25)
-        pixel_key = "global_pixel" if "global_pixel" in t else "global_pixel_center"
+        pixel_key = (
+            "global_pixel_center" if "global_pixel_center" in t else "global_pixel"
+        )
 
         draw_tactical_shape(
             canvas,
@@ -104,7 +108,6 @@ def build_and_slice_theater_memory(
             sector_id += 1
             x1, y1 = c * sector_w, r * sector_h
             crop = canvas[y1 : y1 + sector_h, x1 : x1 + sector_w]
-
             cv2.imwrite(f"assets/test/{sector_id}.png", crop)
             sector_crops[sector_id] = crop
 
@@ -160,8 +163,13 @@ def detect_objects(
             is_duplicate = False
             for existing in existing_detections:
                 if existing["type"] == profile["type"]:
-                    if "global_pixel_center" in existing:
-                        ex_gx, ex_gy = existing["global_pixel_center"]
+                    ex_key = (
+                        "global_pixel_center"
+                        if "global_pixel_center" in existing
+                        else "global_pixel"
+                    )
+                    if ex_key in existing:
+                        ex_gx, ex_gy = existing[ex_key]
                     else:
                         continue
 
@@ -242,11 +250,7 @@ def scan_sectors_from_memory(sector_crops, grid_size, global_map_dim, time_tick)
                 cv2.imwrite(filename, crop)
                 d["image"] = filename
 
-    # Safely clean reference indices before packing structure
-    for d in master_tick_detections:
-        if "global_pixel_center" in d:
-            del d["global_pixel_center"]
-
+    # 🔥 FIX: Stripping code that removed 'global_pixel_center' has been completely deleted here.
     return master_tick_detections
 
 
@@ -256,13 +260,6 @@ def scan_sectors_from_memory(sector_crops, grid_size, global_map_dim, time_tick)
 
 
 def run_theater_simulation(map_image_path: str = "assets/test_map.png"):
-    """
-    Executes the tactical simulation steps sequentially without any physical
-    time delays. Compiles historical coordinates data instantly.
-
-    Returns:
-        dict: The full structured analytics run manifest ready for JSON parsing.
-    """
     if not os.path.exists(map_image_path):
         return {
             "error": f"Target background environment resource '{map_image_path}' not found."
@@ -315,13 +312,14 @@ def run_theater_simulation(map_image_path: str = "assets/test_map.png"):
             )
             tracked_targets_memory = detections
 
+            # Generate uniform dummy fallback data if zero raw markers detected
             if len(tracked_targets_memory) == 0:
                 for i in range(12):
                     tracked_targets_memory.append(
                         {
                             "id": i,
                             "type": random.choice([p["type"] for p in OBJECT_PROFILES]),
-                            "global_pixel": [
+                            "global_pixel_center": [
                                 random.randint(100, gw - 100),
                                 random.randint(100, gh - 100),
                             ],
@@ -329,6 +327,7 @@ def run_theater_simulation(map_image_path: str = "assets/test_map.png"):
                         }
                     )
         else:
+            # Shift operations can now execute cleanly on subsequent ticks!
             apply_positional_shift(tracked_targets_memory, gh, gw)
 
         sector_crops = build_and_slice_theater_memory(
@@ -339,7 +338,6 @@ def run_theater_simulation(map_image_path: str = "assets/test_map.png"):
             sector_crops, grid_size, (gw, gh), time_tick=tick
         )
 
-        # Caches backup JSON steps locally
         with open(f"assets/result/detections_t{tick}.json", "w") as f:
             json.dump({"tick": tick, "objects": detections}, f, indent=2)
 
@@ -350,7 +348,6 @@ def run_theater_simulation(map_image_path: str = "assets/test_map.png"):
             "objects": detections,
         }
 
-    # Compile the final dictionary manifest layout
     manifest_payload = {
         "simulation_summary": {
             "total_ticks_recorded": total_ticks,
@@ -360,7 +357,6 @@ def run_theater_simulation(map_image_path: str = "assets/test_map.png"):
         "timeline": all_simulation_ticks_history,
     }
 
-    # Save tracking file as history record
     with open("assets/result/all_ticks_manifest.json", "w") as master_f:
         json.dump(manifest_payload, master_f, indent=2)
 
