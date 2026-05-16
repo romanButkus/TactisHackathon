@@ -4,6 +4,7 @@
 // =====================================================================
 const BASE_URL = "http://localhost:5000"
 const SYNC_INTERVAL_MS = 10000 // poll backend every 10 seconds
+const WEATHER_SYNC_INTERVAL_MS = 1800000 // poll weather every 30 minutes
 
 // =====================================================================
 // EXPECTED BACKEND API ENDPOINTS
@@ -39,6 +40,7 @@ let map = null
 let activeRegion = null
 let regions = []
 let syncTimer = null
+let weatherSyncTimer = null
 
 // Leaflet layer groups — cleared and rebuilt on each sync
 const layers = {
@@ -159,7 +161,11 @@ async function selectRegion(id) {
 	startSync(id)
 
 	// Hook for your weather team:
-	// loadWeatherForRegion(region.center[0], region.center[1]);
+	fetchWeather(region.center[0], region.center[1])
+	if (weatherSyncTimer) clearInterval(weatherSyncTimer)
+	weatherSyncTimer = setInterval(() => {
+		fetchWeather(region.center[0], region.center[1])
+	}, WEATHER_SYNC_INTERVAL_MS)
 }
 
 // =====================================================================
@@ -254,7 +260,7 @@ function renderDroneOverlays(drones) {
           <span style="color:#4b7a4b">Objects: </span>${d.object_count ?? "—"}<br>
           <span style="color:#4b7a4b">Status: </span>${d.status ?? "—"}
         </div>
-      `)
+      `)	
 
 		layers.drones.addLayer(overlay)
 		layers.drones.addLayer(marker)
@@ -399,6 +405,42 @@ function renderAnalysisPane(a) {
 // WEATHER CARD UPDATER
 // Your weather team calls this function with their data
 // =====================================================================
+async function fetchWeather(lat, lng) {
+	try {
+		const res = await fetch(`${BASE_URL}/api/weather?lat=${lat}&lng=${lng}`)
+		if (!res.ok) throw new Error(res.status)
+		const wData = await res.json()
+
+		// The main backend returns the weather data directly
+		const weather = wData || {};
+
+		// Convert metric values and verify fly zones based on your analysis.py logic
+		const windKmh = weather.wind_speed ? (weather.wind_speed * 3.6).toFixed(1) : 0;
+		const visKm = weather.visibility ? (weather.visibility / 1000).toFixed(1) : 10;
+		const isFlyable = (weather.wind_speed <= 10 && weather.visibility >= 2000);
+
+		let precip = "None";
+		if (weather.rain) precip = `${weather.rain}mm Rain`;
+		else if (weather.snow) precip = `${weather.snow}mm Snow`;
+
+		const formattedData = {
+			temp: weather.t2m !== undefined ? Math.round(weather.t2m) : 0,
+			cond: weather.rain ? "Rain" : (weather.snow ? "Snow" : "Clear"),
+			fly: isFlyable,
+			wind: windKmh,
+			windDir: weather.wind_deg ? `${weather.wind_deg}°` : "N/A",
+			vis: visKm,
+			clouds: 0, // Could be hooked up to OpenWeather 'clouds' param if added in backend
+			clouds: weather.clouds !== undefined ? weather.clouds : 0,
+			precip: precip
+		}
+
+		updateWeatherCard(formattedData)
+	} catch (err) {
+		console.error("Failed to fetch weather:", err)
+	}
+}
+
 function updateWeatherCard(data) {
 	document.getElementById("w-temp").textContent =
 		(data.temp > 0 ? "+" : "") + data.temp + "°C"

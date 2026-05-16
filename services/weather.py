@@ -114,15 +114,6 @@ async def get_all_regions_weather():
 
 
 
-<<<<<<< HEAD
-if __name__ == "__main__":
-    tulos = asyncio.run(get_all_regions_weather())
-    print(json.dumps(tulos, indent=2))
-=======
->>>>>>> f78abe309f76721cb29f1f9650a2f9de201130c7
-
-
-
 if __name__ == "__main__":
     tulos = asyncio.run(get_all_regions_weather())
 
