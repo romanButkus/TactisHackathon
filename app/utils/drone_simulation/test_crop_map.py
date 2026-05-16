@@ -1,60 +1,255 @@
+import json
 import os
+import random
 
-from app.utils.drone_simulation.crop_map import generate_tactical_simulation
-from app.utils.drone_simulation.intel_processor import analyze_satellite_image
+import cv2
+import numpy as np
 
-# Operational Configs
-MASTER_MAP = "/home/alex/Development/projects/hackathon/assets/test_map.png"
-GRID_SIZE = 10
-TOTAL_TARGETS = 15
+# =========================
+# OBJECT DEFINITIONS
+# =========================
 
-print("=== 🧪 RUNNING MODULAR MATRIX CROP SYSTEM TEST ===")
+OBJECT_PROFILES = [
+    {"type": "AMMO_DEPOT", "color": (0, 0, 255)},  # red
+    {"type": "COMMS_CENTER", "color": (0, 165, 255)},  # orange
+    {"type": "TROOP_FORMATION", "color": (255, 0, 128)},  # pink
+    {"type": "COMMAND_POST", "color": (0, 230, 230)},  # cyan
+]
 
-if not os.path.exists(MASTER_MAP):
-    print(f"❌ Aborting: Ensure you have your 4K upscaled image at '{MASTER_MAP}'")
-    exit(1)
 
-# Step 1: Fire the upgraded grid generator
-target_registry = generate_tactical_simulation(
-    MASTER_MAP, grid_size=GRID_SIZE, total_targets=TOTAL_TARGETS
-)
+# =========================
+# DRAW SHAPES
+# =========================
 
-# Step 2: Extract which sector file got a target injected into it
-sample_target = target_registry[0]
-target_sector_id = sample_target["assigned_sector"]
-target_file_path = f"assets/test/{target_sector_id}.png"
 
-print(f"\n📡 Selecting Active Sector Target file: {target_file_path}")
+def draw_tactical_shape(img, obj_type, center, radius, color):
+    cx, cy = center
 
-# Step 3: Run the completely isolated modular intelligence script
-manifest = analyze_satellite_image(target_file_path, output_dir="assets/result")
+    if obj_type == "AMMO_DEPOT":
+        pts = np.array(
+            [[cx, cy - radius], [cx - radius, cy + radius], [cx + radius, cy + radius]]
+        )
+        cv2.fillPoly(img, [pts], color)
 
-if manifest["status"] == "success" and manifest["total_detected"] > 0:
-    print(f"\n🎯 Targets Detected Successfully in Sector Frame!")
+    elif obj_type == "COMMS_CENTER":
+        cv2.rectangle(
+            img, (cx - radius, cy - radius), (cx + radius, cy + radius), color, -1
+        )
 
-    print(f"💾 Check file path -> 'assets/result/{target_sector_id}_manifest.json'")
-    print(f"📸 Check file path -> 'assets/result/{target_sector_id}_target_1.png'")
+    elif obj_type == "TROOP_FORMATION":
+        pts = np.array(
+            [
+                [cx, cy - radius],
+                [cx + radius, cy],
+                [cx, cy + radius],
+                [cx - radius, cy],
+            ]
+        )
+        cv2.fillPoly(img, [pts], color)
 
-    print("\n📦 Verified Sample Intel Object Data Matrix:")
-    first_item = manifest["data"][0]
+    elif obj_type == "COMMAND_POST":
+        pts = [
+            (
+                int(cx + radius * np.cos(np.deg2rad(i * 60 + 30))),
+                int(cy + radius * np.sin(np.deg2rad(i * 60 + 30))),
+            )
+            for i in range(6)
+        ]
+        cv2.fillPoly(img, [np.array(pts, np.int32)], color)
 
-    # SYSTEM SAFETY HOOKS: Defensively extract keys to avoid KeyError breaks
-    t_id = first_item.get("target_id", "STRUCTURE-01")
-    crop_asset = first_item.get("crop_asset_path", "No Asset Generated")
 
-    coords = first_item.get("relative_coordinates", {})
-    pct_x = coords.get("percentage_x", 0.0)
-    pct_y = coords.get("percentage_y", 0.0)
+# =========================
+# MAP GENERATION
+# =========================
 
-    print(f"   -> ID: {t_id}")
-    print(f"   -> Image Crop Saved to: {crop_asset}")
-    print(f"   -> Frame Relative Spot: {pct_x}% X / {pct_y}% Y")
-else:
-    print("\n❌ Pipeline scan returned 0 detections.")
-    print(
-        "💡 Debug Tip: The image file was saved, but the color threshold mask found 0 pixels."
-    )
-    print("   Print the full manifest output here to inspect the base report array:")
-    print(json.dumps(manifest, indent=2))
 
-print("\n=== ISOLATED MODULAR ENGINE TEST RUN CONCLUDED ===")
+def generate_tactical_simulation(map_path, grid_size=5, total_targets=12):
+    img = cv2.imread(map_path)
+    if img is None:
+        raise FileNotFoundError("Map not found")
+
+    h, w = img.shape[:2]
+
+    sector_w = w // grid_size
+    sector_h = h // grid_size
+
+    os.makedirs("assets/test", exist_ok=True)
+    os.makedirs("assets/result", exist_ok=True)
+
+    sectors = [(r, c) for r in range(grid_size) for c in range(grid_size)]
+    random.shuffle(sectors)
+
+    for i in range(total_targets):
+        r, c = sectors[i]
+
+        x1, y1 = c * sector_w, r * sector_h
+
+        rx = random.randint(x1 + 20, x1 + sector_w - 20)
+        ry = random.randint(y1 + 20, y1 + sector_h - 20)
+
+        radius = random.randint(20, 35)
+
+        profile = OBJECT_PROFILES[i % len(OBJECT_PROFILES)]
+
+        draw_tactical_shape(img, profile["type"], (rx, ry), radius, profile["color"])
+
+    cv2.imwrite("assets/test/master.png", img)
+
+    # crop sectors
+    sector_id = 0
+    for r in range(grid_size):
+        for c in range(grid_size):
+            sector_id += 1
+
+            x1, y1 = c * sector_w, r * sector_h
+            crop = img[y1 : y1 + sector_h, x1 : x1 + sector_w]
+
+            cv2.imwrite(f"assets/test/{sector_id}.png", crop)
+
+    return (sector_w, sector_h)
+
+
+# =========================
+# DETECTION
+# =========================
+
+
+def detect_objects(img, sector_id, origin, size, obj_start_id=0):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    ox, oy = origin
+    sw, sh = size
+
+    detections = []
+    obj_id = obj_start_id
+
+    for profile in OBJECT_PROFILES:
+        bgr = np.uint8([[profile["color"]]])
+        hsv_color = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)[0][0]
+
+        lower = np.array([max(0, hsv_color[0] - 10), 100, 100])
+        upper = np.array([min(179, hsv_color[0] + 10), 255, 255])
+
+        mask = cv2.inRange(hsv, lower, upper)
+
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        for cnt in contours:
+            if cv2.contourArea(cnt) < 80:
+                continue
+
+            M = cv2.moments(cnt)
+            if M["m00"] == 0:
+                continue
+
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m00"])
+
+            x, y, w, h = cv2.boundingRect(cnt)
+
+            obj_id += 1
+
+            detections.append(
+                {
+                    "id": obj_id,
+                    "type": profile["type"],
+                    "sector": sector_id,
+                    "sector_center": [cx, cy],
+                    "global_center": [ox + cx, oy + cy],
+                    "bbox": [x, y, w, h],
+                }
+            )
+
+    return detections
+
+
+# =========================
+# SCAN SECTORS + SAVE CROPS
+# =========================
+
+
+def scan_sectors(grid_size):
+    results = []
+
+    os.makedirs("assets/result/detections", exist_ok=True)
+
+    sector_id = 0
+    global_obj_id = 0
+
+    for r in range(grid_size):
+        for c in range(grid_size):
+            sector_id += 1
+
+            path = f"assets/test/{sector_id}.png"
+            img = cv2.imread(path)
+
+            if img is None:
+                continue
+
+            h, w = img.shape[:2]
+
+            detections = detect_objects(
+                img,
+                sector_id,
+                origin=(c * w, r * h),
+                size=(w, h),
+                obj_start_id=global_obj_id,
+            )
+
+            for d in detections:
+                global_obj_id += 1
+
+                x, y, w_box, h_box = d["bbox"]
+
+                crop = img[y : y + h_box, x : x + w_box]
+
+                filename = (
+                    f"assets/result/detections/sector_{sector_id}_obj_{d['id']}.png"
+                )
+                cv2.imwrite(filename, crop)
+
+                d["image"] = filename
+
+                results.append(d)
+
+    return results
+
+
+# =========================
+# EXPORT JSON
+# =========================
+
+
+def export_json(data):
+    with open("assets/result/detections.json", "w") as f:
+        json.dump({"count": len(data), "objects": data}, f, indent=2)
+
+
+# =========================
+# RUN TEST
+# =========================
+
+
+def main():
+    map_path = "assets/test_map.png"
+
+    if not os.path.exists(map_path):
+        raise FileNotFoundError(f"Missing map: {map_path}")
+
+    print("🧠 Generating simulation...")
+    grid_size = 5
+
+    generate_tactical_simulation(map_path, grid_size=grid_size, total_targets=12)
+
+    print("🔍 Scanning sectors...")
+    detections = scan_sectors(grid_size)
+
+    export_json(detections)
+
+    print("\n✅ DONE")
+    print(f"Objects detected: {len(detections)}")
+    print("Saved: assets/result/detections.json")
+
+
+if __name__ == "__main__":
+    main()
