@@ -2,7 +2,7 @@
 // CONFIG
 // Change BASE_URL to your Python backend address (Flask / FastAPI)
 // =====================================================================
-const BASE_URL = "http://localhost:5000"
+const BASE_URL = "http://localhost:8000"
 const SYNC_INTERVAL_MS = 10000 // poll backend every 10 seconds
 const WEATHER_SYNC_INTERVAL_MS = 1800000 // poll weather every 30 minutes
 
@@ -42,9 +42,15 @@ let regions = []
 let syncTimer = null
 let weatherSyncTimer = null
 
+let baseMaps = {
+	normal: null,
+	topo: null
+}
+
 // Leaflet layer groups — cleared and rebuilt on each sync
 const layers = {
 	satellite: null, // L.imageOverlay  — the region satellite PNG
+	terrain: null,   // L.imageOverlay  — the region terrain PNG
 	drones: L.layerGroup(),
 	enemies: L.layerGroup(),
 	pois: L.layerGroup(),
@@ -86,11 +92,20 @@ function initMap() {
 		background: "#060a06",
 	})
 
-	// Dark base tiles shown behind satellite PNG
-	L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+	// Dark base tiles (Normal Map)
+	baseMaps.normal = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
 		maxZoom: 18,
 		opacity: 0.4,
-	}).addTo(map)
+	})
+
+	// Topography base tiles
+	baseMaps.topo = L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
+		maxZoom: 17,
+		opacity: 0.6,
+	})
+
+	// Add normal map by default
+	baseMaps.normal.addTo(map)
 
 	// Add layer groups to map
 	layers.drones.addTo(map)
@@ -151,8 +166,8 @@ async function selectRegion(id) {
 	document.getElementById("t-relief").textContent =
 		region.elevation.max - region.elevation.min + " m"
 
-	// Load satellite PNG for this region
-	await loadSatelliteImage(region)
+	// Load satellite and terrain PNGs for this region
+	await loadRegionImages(region)
 
 	// Fly map to region bounds
 	map.fitBounds(region.bbox, { padding: [20, 20] })
@@ -169,19 +184,21 @@ async function selectRegion(id) {
 }
 
 // =====================================================================
-// SATELLITE IMAGE OVERLAY
+// REGION IMAGES OVERLAY
 // =====================================================================
-async function loadSatelliteImage(region) {
+async function loadRegionImages(region) {
 	showLoading(true)
 
-	// Remove previous satellite overlay if exists
+	// Remove previous overlays if they exist
 	if (layers.satellite) {
 		map.removeLayer(layers.satellite)
 		layers.satellite = null
 	}
+	if (layers.terrain) {
+		map.removeLayer(layers.terrain)
+		layers.terrain = null
+	}
 
-	// region.image_url should be served by your Python backend
-	// e.g. "http://localhost:5000/static/images/north_karelia_topo.png"
 	const imageUrl = region.image_url.startsWith("http")
 		? region.image_url
 		: `${BASE_URL}${region.image_url}`
@@ -196,6 +213,18 @@ async function loadSatelliteImage(region) {
 		showLoading(false)
 		console.error("Failed to load satellite image:", imageUrl)
 	})
+
+	// Load Terrain Image Overlay
+	if (region.terrain_url) {
+		const terrainUrl = region.terrain_url.startsWith("http")
+			? region.terrain_url
+			: `${BASE_URL}${region.terrain_url}`
+
+		layers.terrain = L.imageOverlay(terrainUrl, region.bbox, {
+			opacity: 0.6, // Semi-transparent so satellite stays visible
+			interactive: false,
+		}).addTo(map)
+	}
 }
 
 // =====================================================================
@@ -505,8 +534,20 @@ function renderRegionList() {
 // LAYER TOGGLES
 // =====================================================================
 function toggleLayer(name, visible) {
-	if (name === "satellite" && layers.satellite) {
-		visible ? map.addLayer(layers.satellite) : map.removeLayer(layers.satellite)
+	if (name === "drones" || name === "enemies") return
+
+	if (name === "satellite") {
+		if (layers.satellite) {
+			visible ? map.addLayer(layers.satellite) : map.removeLayer(layers.satellite)
+		}
+		
+		if (visible) {
+			map.removeLayer(baseMaps.normal)
+			map.addLayer(baseMaps.topo)
+		} else {
+			map.removeLayer(baseMaps.topo)
+			map.addLayer(baseMaps.normal)
+		}
 	} else if (layers[name]) {
 		visible ? map.addLayer(layers[name]) : map.removeLayer(layers[name])
 	}

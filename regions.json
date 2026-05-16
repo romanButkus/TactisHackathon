@@ -18,18 +18,11 @@
             "avg_elevation": 142.75797270735106
         },
         "image": {
-<<<<<<< HEAD
             "filename": "assets/images/north_karelia_topo.png",
             "width": 1280,
             "height": 2048
         },
         "terrain_image": "assets/terrains/pohjois-karjala_terrain.png"
-=======
-            "filename": "assets\\images\\north_karelia_topo.png",
-            "width": 512,
-            "height": 512
-        }
->>>>>>> 8bbba63b8e780e801446d2a873410847aa1d0d30
     },
     {
         "name": "Varsinais-Suomi, Suomi / Finland",

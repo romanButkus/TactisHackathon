@@ -47,11 +47,15 @@ def get_regions():
 		img_path = r.get("image", {}).get("filename", "")
 		img_filename = img_path.replace("\\", "/").split("/")[-1]
 
+		terrain_path = r.get("terrain_image", "")
+		terrain_filename = terrain_path.replace("\\", "/").split("/")[-1] if terrain_path else ""
+
 		result.append({
 			"id" : r.get("id", name_key),
 			"name": name.split(",")[0],
 			"color" : colors[i % len(colors)],
 			"image_url": f"/static/images/{img_filename}",
+			"terrain_url": f"/static/terrains/{terrain_filename}" if terrain_filename else None,
 			"bbox": [
 				[r["bbox"]["min_lat"], r["bbox"]["min_lng"]],
 				[r["bbox"]["max_lat"], r["bbox"]["max_lng"]]
@@ -110,6 +114,10 @@ def get_elevation_all():
 
 # === Drones ===
 @app.get("/api/drones")
+def get_drones(region: str = Query(...)):
+	return JSONResponse(drone_store.get(region, []))
+
+@app.post("/api/drones")
 def add_drone(data: dict):
 	region = data.get("region")
 	if not region:
@@ -122,6 +130,10 @@ def add_drone(data: dict):
 
 # === Objects ===
 @app.get("/api/objects")
+def get_objects(region: str = Query(...)):
+	return JSONResponse(object_store.get(region, []))
+
+@app.post("/api/objects")
 def add_object(data: dict):
 	region = data.get("region")
 	if not region:
@@ -132,7 +144,7 @@ def add_object(data: dict):
 	object_store[region].append(data)
 	return JSONResponse(content={"ok": True})
 
-@app.delete("/api/objects")
+@app.get("/api/intel")
 def get_intel(region: str = Query(...)):
 	drones = drone_store.get(region, [])
 	objects = object_store.get(region, [])
