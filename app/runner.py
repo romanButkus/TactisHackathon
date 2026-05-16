@@ -20,16 +20,19 @@ async def root():
 
 @app.get("/weather")
 async def show_weather(
-    region: str = "Helsinki",
+    region: str | None = None,
     lat: float = None,
     lng: float = None
 ):
+    # If empty -> error
+    if not region and (lat is None or lng is None):
+        return {"error": "Provide a region parameter or coordinates (lat, lng)"}
+        
     weather_data = await get_weather_data(region, lat, lng)
     return {"region": region, "weather_data": weather_data}
 
+
 @app.get("/weather/all")
 async def show_all_weather():
-    # Tuodaan funktio tässä, jotta se toimii riippumatta muista importeista
-    from services.weather import get_all_regions_weather
     weather_data = await get_all_regions_weather()
     return {"data": weather_data}

@@ -20,4 +20,8 @@ uvicorn==0.47.0
 requests
 python-dotenv
 Pillow
+<<<<<<< HEAD
 PIL
+=======
+pandas
+>>>>>>> f78abe309f76721cb29f1f9650a2f9de201130c7
