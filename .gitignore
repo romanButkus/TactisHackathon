@@ -12,7 +12,6 @@ devenv.local.yaml
 venv/
 .venv/
 env/
-assets/
 __pycache__/
 *.py[cod]
 
