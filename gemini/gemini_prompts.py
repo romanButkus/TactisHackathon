@@ -144,16 +144,11 @@ if __name__ == "__main__":
     with open("regions.json", "r") as f:
         all_regions = json.load(f)
 
-    # === Provides one-time mock data matrices ===
-    mock_weather = {
-        "wind_speed_mps": 4.5,
-        "precipitation": "Light Rain",
-        "visibility_km": 12.0,
-    }
-    mock_objects = [
-        {"type": "Power Tower", "lat": 62.61, "lng": 29.71},
-        {"type": "Communication Mast", "lat": 62.64, "lng": 29.68},
-    ]
+    with open("weather_results.json", "r") as f:
+        all_weather = json.load(f)
+
+    with open("assets/result/all_ticks_manifest.json", "r") as f:
+        all_objects = json.load(f)
 
     # Master dictionary to hold data for ALL regions
     master_map_state = {}
@@ -166,8 +161,8 @@ if __name__ == "__main__":
         # Run the analysis for this single region
         analysis_result = run_comprehensive_regional_analysis(
             region_data=region,
-            weather_metadata=mock_weather,
-            detected_objects=mock_objects,
+            weather_metadata=all_weather,
+            detected_objects=all_objects,
         )
 
         # Store it inside our master dictionary using the region name as the key
