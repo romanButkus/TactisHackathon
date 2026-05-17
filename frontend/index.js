@@ -3,6 +3,7 @@
 // =====================================================================
 const BASE_URL = "http://localhost:8000";
 const SIMULATION_JSON_PATH = "objects.json"; // Update to your exact local path
+const LIVE_MAP_STATE_PATH = `${BASE_URL}/api/analysis/live`;
 const SYNC_INTERVAL_MS = 10000; 
 const WEATHER_SYNC_INTERVAL_MS = 1800000; 
 
@@ -20,6 +21,7 @@ let useSimulationMode = true;
 let currentSimulationTick = 1;
 let simulationPlayInterval = null;
 let localSimulationData = null; // Hydrated via asynchronous file read
+let liveMapState = null;
 
 let baseMaps = {
   normal: null,
@@ -45,6 +47,7 @@ window.addEventListener("load", async () => {
   
   // High-priority operational load sequence
   await loadSimulationFile(); 
+  await loadLiveMapState();
   await fetchRegions();
 });
 
@@ -79,6 +82,18 @@ async function loadSimulationFile() {
     console.log("Tactical simulation matrix successfully cached locally.");
   } catch (err) {
     console.error("CRITICAL: Failed to load simulation data file from disk:", err);
+  }
+}
+
+async function loadLiveMapState() {
+  try {
+    const response = await fetch(LIVE_MAP_STATE_PATH);
+    if (!response.ok) {
+      throw new Error(`HTTP error status: ${response.status}`);
+    }
+    liveMapState = await response.json();
+  } catch (err) {
+    console.error("Failed to load live map state file from backend:", err);
   }
 }
 
@@ -206,7 +221,7 @@ function startSync(regionId) {
 async function syncOnce(regionId) {
   try {
     // Only hit the live API endpoints for normal map assets, not the simulation data
-    const [droneData, objectData, intelData, analysisData] = await Promise.all([
+    let [droneData, objectData, intelData, analysisData] = await Promise.all([
       fetch(`${BASE_URL}/api/drones?region=${regionId}`).then(r => r.json()),
       fetch(`${BASE_URL}/api/objects?region=${regionId}`).then(r => r.json()),
       fetch(`${BASE_URL}/api/intel?region=${regionId}`).then(r => r.json()),
@@ -220,6 +235,31 @@ async function syncOnce(regionId) {
       layers.enemies.clearLayers();
       layers.pois.clearLayers();
       
+      const tickKey = `tick_${currentSimulationTick}`;
+      const tickData = localSimulationData.timeline[tickKey];
+      const region = regions.find(r => r.id === activeRegion);
+
+      if (tickData && region) {
+        objectData = tickData.objects.map(o => {
+          const coords = o.global_pixel_center || o.local_pixel_center;
+          const latLng = projectPixelToLatLng(coords, localSimulationData.simulation_summary.map_dimensions, region.bbox);
+          return {
+            category: "enemy",
+            type: o.type === "COMMAND_POST" ? "cmd" : "comms",
+            name: `${o.type.replace("_", " ")} [ID: ${o.id}]`,
+            threat: o.type === "COMMAND_POST" ? "HIGH" : "MED",
+            lat: latLng[0],
+            lng: latLng[1]
+          };
+        });
+
+        intelData = {
+          sorties: 1,
+          analyzed: tickData.objects.length,
+          pending: 0
+        };
+      }
+
       // Keep rendering the active selected timeline frame from local file state
       renderSimulationTick(`tick_${currentSimulationTick}`);
       setupSimulationControls();
@@ -231,6 +271,8 @@ async function syncOnce(regionId) {
       renderObjectMarkers(objectData);
       renderObjectList(objectData);
     }
+
+    await loadLiveMapState(); // Refresh AI analysis data on sync
 
     renderIntelPane(intelData, objectData);
     renderAnalysisPane(analysisData);
@@ -480,21 +522,61 @@ function renderIntelPane(intel, objects) {
 }
 
 function renderAnalysisPane(a) {
-  const scores = [
-    { label: "Strike viability", val: a.strike },
-    { label: "Visibility / ISR", val: a.visibility },
-    { label: "Accessibility", val: a.accessibility },
-    { label: "Intel confidence", val: a.intel }
-  ];
-  document.getElementById("pane-analysis").innerHTML = `
-    <div class="dcard">
-      <div class="dcard-title">Strike Assessment</div>
-      ${scores.map(s => {
-        const color = s.val > 65 ? "#4ade80" : s.val > 40 ? "#fbbf24" : "#f87171";
-        return `<div class="score-row"><div class="score-hdr"><span>${s.label}</span><span style="color:${color}">${s.val}%</span></div><div class="score-trk"><div class="score-fill" style="width:${s.val}%; background:${color}"></div></div></div>`;
-      }).join("")}
-    </div>
-    <div class="dcard"><div class="dcard-title">AI Recommendation</div><div class="rec ${a.recType}">${a.rec}</div></div>`;
+  const region = regions.find(r => r.id === activeRegion);
+  const regionName = region ? region.name : null;
+  const stateKey = liveMapState && regionName ? Object.keys(liveMapState).find(k => k.includes(regionName)) : null;
+  const state = stateKey ? liveMapState[stateKey] : null;
+
+  if (state) {
+    const ma = state.master_analysis;
+    const mods = state.modules;
+    const color = ma.overall_risk_score > 7 ? "#f87171" : ma.overall_risk_score > 4 ? "#fbbf24" : "#4ade80";
+
+    document.getElementById("pane-analysis").innerHTML = `
+      <div class="dcard">
+        <div class="dcard-title">AI Master Analysis</div>
+        <div class="score-row">
+            <div class="score-hdr"><span>Overall Risk Score</span><span style="color:${color}">${ma.overall_risk_score}/10</span></div>
+            <div class="score-trk"><div class="score-fill" style="width:${ma.overall_risk_score * 10}%; background:${color}"></div></div>
+        </div>
+        <div style="font-size:11px; margin-top:8px; line-height:1.4; color:#d1d5db;">${ma.integrated_summary}</div>
+      </div>
+      <div class="dcard">
+        <div class="dcard-title">Flight Recommendation</div>
+        <div class="rec ${ma.overall_risk_score > 7 ? 'nogo' : ma.overall_risk_score > 4 ? 'warn' : 'go'}">${ma.flight_recommendation}</div>
+      </div>
+      <div class="dcard">
+        <div class="dcard-title">Module Insights</div>
+        <div style="margin-bottom: 8px;">
+            <strong style="color:#fbbf24;">Weather (${mods.weather.severity}):</strong> 
+            <span style="font-size:11px; color:#d1d5db;">${mods.weather.impact_statement}</span>
+        </div>
+        <div style="margin-bottom: 8px;">
+            <strong style="color:#f87171;">Objects (${mods.objects.hazard_level}):</strong> 
+            <span style="font-size:11px; color:#d1d5db;">${mods.objects.object_summary}</span>
+        </div>
+        <div>
+            <strong style="color:#4ade80;">Terrain (${mods.elevation.terrain_type}):</strong> 
+            <span style="font-size:11px; color:#d1d5db;">${mods.elevation.elevation_summary}</span>
+        </div>
+      </div>`;
+  } else {
+    const scores = [
+      { label: "Strike viability", val: a.strike },
+      { label: "Visibility / ISR", val: a.visibility },
+      { label: "Accessibility", val: a.accessibility },
+      { label: "Intel confidence", val: a.intel }
+    ];
+    document.getElementById("pane-analysis").innerHTML = `
+      <div class="dcard">
+        <div class="dcard-title">Strike Assessment</div>
+        ${scores.map(s => {
+          const color = s.val > 65 ? "#4ade80" : s.val > 40 ? "#fbbf24" : "#f87171";
+          return `<div class="score-row"><div class="score-hdr"><span>${s.label}</span><span style="color:${color}">${s.val}%</span></div><div class="score-trk"><div class="score-fill" style="width:${s.val}%; background:${color}"></div></div></div>`;
+        }).join("")}
+      </div>
+      <div class="dcard"><div class="dcard-title">AI Recommendation</div><div class="rec ${a.recType}">${a.rec}</div></div>`;
+  }
 }
 
 // =====================================================================

@@ -217,6 +217,14 @@ def get_analysis(region: str = Query(...)):
     )
 
 
+@app.get("/api/analysis/live")
+def get_live_map_state():
+    if os.path.exists("live_map_state.json"):
+        with open("live_map_state.json", "r", encoding="utf-8") as f:
+            return JSONResponse(content=json.load(f))
+    return JSONResponse(content={})
+
+
 @app.get("/api/towers")
 def get_cell_towers(region: str = "Pohjois-Karjala"):
     """
